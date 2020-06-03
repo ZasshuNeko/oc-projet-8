@@ -10123,8 +10123,58 @@ header.masthead h1 {
   color: rgba(255, 255, 255, 0.75);
 }
 
-.input_zone {
-  width: 90%;
-  margin: 0 auto;
-  float: none;
+#compte {
+  padding-top: 08rem;
+  padding-bottom: calc(10rem - 4.5rem);
+  background: linear-gradient(to bottom, rgba(92, 77, 66, 0.8) 0%, rgba(92, 77, 66, 0.8) 100%), url("../assets/img/bg_app.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-size: cover;
+}
+@media (min-width: 992px) {
+  #compte {
+    height: 50vh;
+    min-height: 20rem;
+    padding-top: 2.5rem;
+    padding-bottom: 0;
+  }
+
+#img_reponse {
+  padding-top: 08rem;
+  background-position: center;
+  height : 100%;
+  max-width: 100%;
+}
+@media (min-width: 992px) {
+  #img_reponse {
+    height: 50%;
+    max-width: 40%;
+    padding-top: 2.5rem;
+    padding-bottom: 0;
+  }
+
+#theme-box {
+  position: relative;
+  margin-bottom: 60px;
+  box-shadow: 0 0 4px 0 rgba(0,0,0,.25);
+  overflow: hidden;
+  height: 200px;
+  transition: box-shadow 0.3s ease-in-out;
+
+}
+
+.theme-info {
+  position: absolute;
+  left:0;
+  bottom: 0;
+  right: 0;
+  background: rgba(125,255,255,0.95);
+  box-shadow: 0 0 6px 0 rgba(0,0,0,.25);
+  height: 124px;
+  transition: all 0.3s ease;
+}
+
+#themelist {
+  margin-top: 15px;
 }

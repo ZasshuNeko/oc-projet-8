@@ -1,0 +1,100 @@
+{% load static %}
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Creative - Start Bootstrap Theme</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="{% static 'oc_projetHuit/assets/img/favicon.ico' %}" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic" rel="stylesheet" type="text/css" />
+        <!-- Third party plugin CSS-->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="{% static 'oc_projetHuit/css/styles.css' %}" rel="stylesheet" />
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        {% include "menus.html" %}
+        <!-- Masthead-->
+        <header class="masthead">
+            <div class="container h-75">
+                <div class="row h-75 align-items-center justify-content-center text-center">
+                    <div class="col-lg-10 align-self-end">
+                        <h1 class="text-uppercase text-white font-weight-bold">Votre recherche pour : {{ cherche.search }}</h1>
+                        <hr class="divider my-4" />
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Portfolio-->
+        <div id="portfolio">
+            <div class="container-fluid p-0">
+                <div class="row no-gutters">
+                        {% if cherche.error == True %}
+                        <div class="col-lg-10 col-sm-8">
+                            <p>Nous sommes confus mais aucune résultat n'est exploitable pour cette demande</p>
+                        </div>
+                        {% else %}
+                            {% for resultat in trouve %}
+                                <div class="col-lg-4 col-sm-6 portfolio-box" style="background: url('{{resultat.image}}') no-repeat;background-size:cover;width: 100px;height: 300px;">
+                                    
+                                        <img class="img-fluid" src="{% static resultat.url_img_nutri %}" style="height: 50px;width: auto;" alt="" />
+                                        <div class="portfolio-box-caption">
+                                            <div class="project-category text-white-50">Machin</div>
+                                            <div class="project-name"><a href="{% url 'get_aliment' resultat.id %}" Style="width: 300px;height: 400px;">{{ resultat.nom }}</a></div>
+                                            {% if resultat.favoris == True %}
+                                            <a href="{% url 'save' resultat.id %}"><img class="img-fluid" src="{% static 'oc_projetHuit/assets/img/save.png' %}" style="height: 50px;width: auto;" alt="" /></a>
+                                            {% endif %}
+
+                                        </div>
+                                    
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Contact-->
+        <section class="page-section" id="contact">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <h2 class="mt-0">Contactez nous !</h2>
+                        <hr class="divider my-4" />
+                        <p class="text-muted mb-5">Des envies ? Des idées ? N'hésitez pas à venir nous trouver.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 ml-auto text-center mb-5 mb-lg-0">
+                        <i class="fas fa-phone fa-3x mb-3 text-muted"></i>
+                        <div>+1 (555) 123-4567</div>
+                    </div>
+                    <div class="col-lg-4 mr-auto text-center">
+                        <i class="fas fa-envelope fa-3x mb-3 text-muted"></i
+                        ><!-- Make sure to change the email address in BOTH the anchor text and the link target below!--><a class="d-block" href="mailto:contact@yourwebsite.com">contact@yourwebsite.com</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Footer-->
+        <footer class="bg-light py-5">
+            <div class="container"><div class="small text-center text-muted">Copyright © 2020 - Start Bootstrap</div></div>
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+        <!-- Third party plugin JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="{% static 'oc_projetHuit/js/scripts_1.js' %}"></script>
+    </body>
+</html>
