@@ -5,12 +5,10 @@ from . import views
 
 urlpatterns = [
 	path('',views.index, name='index'),
-	path('log_in/', views.get_login, name='login'),
-	path('log_out/', views.log_out, name='logout'),
-	path('signe_it/', views.get_signeit, name='signeit'),
-	path('get_compte/', views.get_compte, name='compte'),
 	re_path(r'^resultat/([0-9a-zA-Z]+)/',views.get_resultat, name='resultat'),
 	path('r/resultat/',views.redirect_resultat, name='redirect_resultat'),
+	path('favoris/',views.save_favoris, name='favoris'),
+	re_path(r'^maj/index/([0-9]+)/',views.mise_index, name="maj_index"),
 	re_path(r'^aliments/([0-9]+)/',views.get_aliment, name='get_aliment'),
 	re_path(r'^save/([0-9]+)/',views.save, name='save'),
 

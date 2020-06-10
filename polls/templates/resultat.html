@@ -28,40 +28,68 @@
             <div class="container h-75">
                 <div class="row h-75 align-items-center justify-content-center text-center">
                     <div class="col-lg-10 align-self-end">
+                        {% if msg_search == "" %}
                         <h1 class="text-uppercase text-white font-weight-bold">Votre recherche pour : {{ cherche.search }}</h1>
+                        {% else %}
+                        <h1 class="text-uppercase text-white font-weight-bold">{{ msg_search }}</h1>
+                        {% endif %}
                         <hr class="divider my-4" />
                     </div>
                 </div>
             </div>
         </header>
         <!-- Portfolio-->
-        <div id="portfolio">
-            <div class="container-fluid p-0">
-                <div class="row no-gutters">
-                        {% if cherche.error == True %}
+        <section class="page-section bg-primary">
+            <div class="container">
+                <div class="row">
+                    <div class="d-flex flex-wrap">
+                    {% if cherche.error == True %}
                         <div class="col-lg-10 col-sm-8">
                             <p>Nous sommes confus mais aucune résultat n'est exploitable pour cette demande</p>
                         </div>
-                        {% else %}
-                            {% for resultat in trouve %}
-                                <div class="col-lg-4 col-sm-6 portfolio-box" style="background: url('{{resultat.image}}') no-repeat;background-size:cover;width: 100px;height: 300px;">
-                                    
-                                        <img class="img-fluid" src="{% static resultat.url_img_nutri %}" style="height: 50px;width: auto;" alt="" />
-                                        <div class="portfolio-box-caption">
-                                            <div class="project-category text-white-50">Machin</div>
-                                            <div class="project-name"><a href="{% url 'get_aliment' resultat.id %}" Style="width: 300px;height: 400px;">{{ resultat.nom }}</a></div>
-                                            {% if resultat.favoris == True %}
-                                            <a href="{% url 'save' resultat.id %}"><img class="img-fluid" src="{% static 'oc_projetHuit/assets/img/save.png' %}" style="height: 50px;width: auto;" alt="" /></a>
-                                            {% endif %}
-
-                                        </div>
-                                    
+                    {% else %}
+                    {% for resultat in trouve %}
+                    <div class="col-mb-4 p-2">
+                    <div class="card mb-4 shadow-sm">
+                        <svg class="bd-placeholder-img card-img-top" min-width="250px" width="100%" height="250px" xmlns="https://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="placeholder: Un produits">
+                            <title>{{ resultat.ingredient }}</title>
+                            <rect width="100%" height="100%" fill="#55595c"></rect>
+                            <image xlink:href='{{resultat.image}}' x="0%" y="-60%" width="100%" height="600" preserveAspectRatio="False" />
+                        </svg>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <p class="card-text text-center"><a href="{% url 'get_aliment' resultat.id %}">{{ resultat.nom }}</a></p>
                                 </div>
-                            {% endfor %}
-                        {% endif %}
+                                <img class="img-fluid" src="{% static resultat.url_img_nutri %}" style="height: 60px;width: auto;" alt="" />
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                            {% if user.is_authenticated %}
+                                <div class="btn-group">
+                                    {% if resultat.favoris %}
+                                     <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'save' resultat.id %}">Sauvegarder</a>
+                                     {% endif %}
+                                    {% if resultat.index %}
+                                    <a role="button" class="btn btn-sm btn-outline-secondary" href="/polls/maj/index/{{resultat.id}}/">Retirer de l'index</a>
+                                    {% else %}
+                                    <a role="button" class="btn btn-sm btn-outline-secondary" href="/polls/maj/index/{{resultat.id}}/">Mettre en index</a>
+                                    {% endif %}
+                                    <a role="button" class="btn btn-sm btn-outline-secondary" href="{{resultat.url}}">OpenFoodFact</a>
+                                </div>
+                            {% else %}
+                                <small class="text-muted">Connectez-vous pour plus d'option</small>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
         <!-- Contact-->
         <section class="page-section" id="contact">
             <div class="container">

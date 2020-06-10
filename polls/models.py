@@ -20,6 +20,10 @@ class Produits(models.Model):
 	def __str__(self):
 		return self.brands_tags
 
+class categories(models.Model):
+	nom = models.CharField(max_length=5000)
+	produit = models.ManyToManyField(Produits)
+
 class Vendeurs(models.Model):
 	produits = models.ForeignKey('Produits', on_delete=models.CASCADE)
 	nom = models.CharField(max_length=600)

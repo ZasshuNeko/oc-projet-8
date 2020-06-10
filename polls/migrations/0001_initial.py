@@ -3,6 +3,8 @@
 
 import django.db.models.deletion
 from django.db import migrations, models, connection, transaction
+from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 import requests
 import json
@@ -16,11 +18,14 @@ def maj_bdd(apps, schema_editor):
         fichier = f_read.read()
     with io.open(chemin + '\\polls\\migrations\\config\\field.txt',mode='r',encoding='utf-8') as f_field:
         field = f_field.read()
+    with io.open(chemin + '\\polls\\migrations\\config\\tbl_cat.txt',mode='r',encoding='utf-8') as f_cat:
+        cat_tbl = f_cat.read()
     dico = {}
     nw_liste = []
     liste_id = []
     liste_cat = fichier.split(',')
     liste_field = field.split(',')
+    liste_tbl_cat = cat_tbl.split(",")
     for cat in liste_cat:
         print(cat)
         url = "https://fr.openfoodfacts.org/cgi/search.pl?"
@@ -29,7 +34,7 @@ def maj_bdd(apps, schema_editor):
             'tagtype_0':'categories',
             'tage_contains_0':'contains',
             'tag_0': cat,
-            'sort_by':'unique_scans_n',
+            'page_size':'90',
             'json' : 'true'
         }
         headers = {}
@@ -37,26 +42,32 @@ def maj_bdd(apps, schema_editor):
         reponse = requests.get(url,params=playload)
         f = reponse.json()
         for dic in f['products']:
-            dico = {}
-            dico_construc = {}
-            if dic['_id'] not in liste_id: #dic['complete'] == 1 and 
-                for key, valeur in dic.items():
-                    if key in liste_field:
-                        dico[key] = valeur
-                        if key == '_id':
-                            liste_id.append(valeur)
+            if len(dic['product_name']) > 0:
+                dico = {}
+                dico_construc = {}
+                if dic['_id'] not in liste_id:
+                    for key, valeur in dic.items():
+                        if key in liste_field:
+                            dico[key] = valeur
+                            if key == '_id':
+                                liste_id.append(valeur)
 
-            #cle_dico = "produit" + str(x)
-            #dico_construc[cle_dico] = dico
-            if len(dic) != 0:
-                nw_liste.append(dico)
-            #x += 1
+                #cle_dico = "produit" + str(x)
+                #dico_construc[cle_dico] = dico
+                if len(dic) != 0:
+                    nw_liste.append(dico)
+                #x += 1
 
     #with open('C:\\Users\\Admin\\Documents\\Projet_8\\OCprojetHuit\\polls\\templates\\fichier.json','w') as f_write:
         #json.dump(f['products'][5],f_write)
     Produits = apps.get_model('polls', 'Produits')
     Vendeurs = apps.get_model('polls', 'Vendeurs')
     Nutriments = apps.get_model('polls', 'Nutriments')
+    Categorie = apps.get_model('polls', 'Categories')
+
+    for cat in liste_tbl_cat:
+        Categorie.objects.create(nom=cat)
+
     for item in nw_liste:
         with connection.cursor() as cursor:
             brand = item.get("brands_tags")
@@ -68,36 +79,52 @@ def maj_bdd(apps, schema_editor):
             else:
                 brand = ''
 
-            #cursor.execute("INSERT INTO tbl_produits(ingredient,url_image_ingredients,brands_tags,grade,image_front_url,image_nutrition_url,nova_groups,generic_name_fr,url_site,ingredients_text_fr,_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(item.get("ingredients_text"),item.get("image_ingredients_url"),brand,item.get("grade"),item.get("image_front_url"),item.get("image_nutrition_url"),item.get("nova_groups"),item.get("generic_name_fr"),item.get("url"),item.get("ingredients_text_fr"),item.get("_id")))
-            
-            #last_id = cursor.execute("SELECT MAX(id) FROM tbl_produits;")#CURRVAL(pg_get_serial_sequence('tbl_produits','id'));")
-                #cursor.execute("INSERT INTO tbl_vendeurs(produits,nom) VALUES (%s,%s)",(last_id,stores))
-            liste_nutriment = item.get("nutriments")
-            if len(item) != 0:
-                print(item)
-                nw_produit = Produits.objects.create(ingredient=item.get("ingredients_text"),url_image_ingredients=item.get("image_ingredients_url"),brands_tags=brand,grade=liste_nutriment.get("nutrition-score-fr_100g"),image_front_url=item.get("image_front_url"),image_nutrition_url=item.get("image_nutrition_url"),nova_groups=item.get("nova_groups"),generic_name_fr=item.get("product_name"),url_site=item.get("url"),ingredients_text_fr=item.get("ingredients_text_fr"),_id=item.get("_id"))
-                for stores in item.get("stores_tags"):
-                    Vendeurs.objects.create(produits=nw_produit,nom=stores)
+            cat_produit = item.get('categories')
+            try:
+                liste_cat_produit = cat_produit.split(',')
 
-                for cle,valeur in liste_nutriment.items():
-                    unit = ""
-                    val_100 = 0
-                    label = ""
-                    if cle.find("_label") == -1:
-                        if cle.find("_unit") != -1:
-                            unit = liste_nutriment.get(cle)
-                            label = cle.split('_')
-                            label = label[0]
-                        elif cle.find("_100g") != -1:
-                            val_100 = liste_nutriment.get(cle)
-                            label = cle.split('_')
-                            label = label[0]
+                liste_nutriment = item.get("nutriments")
+                if len(item) != 0:
+                    nw_produit = Produits.objects.create(ingredient=item.get("ingredients_text"),url_image_ingredients=item.get("image_ingredients_url"),brands_tags=brand,grade=liste_nutriment.get("nutrition-score-fr_100g"),image_front_url=item.get("image_front_url"),image_nutrition_url=item.get("image_nutrition_url"),nova_groups=item.get("nova_groups"),generic_name_fr=item.get("product_name"),url_site=item.get("url"),ingredients_text_fr=item.get("ingredients_text_fr"),_id=item.get("_id"))
+                    nw_produit.save()
+                    for cat_produits in liste_cat_produit:
+                        list_cat_op = cat_produits.split(',')
+                        ensble1 = set(list_cat_op)
+                        ensble2 = set(liste_tbl_cat)
+                        ensemble = ensble1 & ensble2
+                        if len(list(ensemble)) > 0:
+                            cat_op = list(ensemble)
+                            try:
+                                object_cat = Categorie.objects.get(nom__exact=cat_op[0])
+                                object_cat.save()
+                                id_cat = object_cat.id
+                                object_cat.produit.add(nw_produit)
+                            except Categorie.DoesNotExist:
+                                b = cat_produit, '+++++++++++'
 
-                        if len(unit) != 0 or len(str(val_100)) != 0:
-                            Nutriments.objects.create(produits=nw_produit,nom=label,unite=unit,valeur=val_100)
-                            unit = ""
-                            val_100 = 0
-                    #cursor.execute("INSERT INTO tbl_nutriments(produits,nom,unite,valeur) VALUES (%s,%s,%s,%s)",(last_id,label,unit,val_100))
+                    for stores in item.get("stores_tags"):
+                        Vendeurs.objects.create(produits=nw_produit,nom=stores)
+
+                    for cle,valeur in liste_nutriment.items():
+                        unit = ""
+                        val_100 = 0
+                        label = ""
+                        if cle.find("_label") == -1:
+                            if cle.find("_unit") != -1:
+                                unit = liste_nutriment.get(cle)
+                                label = cle.split('_')
+                                label = label[0]
+                            elif cle.find("_100g") != -1:
+                                val_100 = liste_nutriment.get(cle)
+                                label = cle.split('_')
+                                label = label[0]
+
+                            if len(unit) != 0 or len(str(val_100)) != 0:
+                                Nutriments.objects.create(produits=nw_produit,nom=label,unite=unit,valeur=val_100)
+                                unit = ""
+                                val_100 = 0
+            except AttributeError:
+                a = "cat vide"
 
 
 class Migration(migrations.Migration):
@@ -112,11 +139,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('ingredient', models.CharField(max_length=5024)),
-                ('url_image_ingredients', models.URLField(max_length=5024)),
+                ('url_image_ingredients', models.URLField(max_length=5024,null=True)),
                 ('brands_tags', models.CharField(max_length=500)),
                 ('grade', models.CharField(max_length=500, blank=True, null=True)),
-                ('image_front_url', models.URLField(max_length=5024)),
-                ('image_nutrition_url', models.URLField(max_length=5024)),
+                ('image_front_url', models.URLField(max_length=5024,null=True)),
+                ('image_nutrition_url', models.URLField(max_length=5024,null=True)),
                 ('nova_groups', models.CharField(max_length=500, null=True)),
                 ('generic_name_fr', models.CharField(max_length=500)),
                 ('url_site', models.URLField(max_length=5024)),
@@ -126,6 +153,19 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table':'polls_produits',
+                'managed': True,
+            },
+        ),
+        migrations.CreateModel(
+            name='Categories',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('nom', models.CharField(max_length=5024)),
+                ('produit', models.ManyToManyField('Produits')),
+
+            ],
+            options={
+                'db_table':'polls_categories',
                 'managed': True,
             },
         ),
@@ -159,6 +199,7 @@ class Migration(migrations.Migration):
             name='Favoris',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('user', models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
                 ('produits', models.ForeignKey('Produits', on_delete=models.CASCADE)),
                 ('date_ajout', models.DateField(auto_now_add=True)),
                 ('aff_index', models.BooleanField()),

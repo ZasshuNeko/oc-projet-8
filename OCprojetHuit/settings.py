@@ -32,7 +32,9 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'bootstrap4',
-    'OCprojetHuit.polls.apps.PollsConfig',
+    #'OCprojetHuit.polls.apps.PollsConfig',
+    'auth_app.apps.AuthAppConfig',
+    'compte.apps.CompteConfig',
     'polls.apps.PollsConfig',
     'django.contrib.postgres',
     'django.contrib.admin',

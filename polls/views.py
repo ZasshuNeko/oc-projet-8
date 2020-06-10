@@ -10,8 +10,8 @@ from django.urls import reverse
 from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
 
-from .models import Produits, Vendeurs, Nutriments, Favoris
-from .forms import LogIn,SignIt,Search
+from .models import Produits, Vendeurs, Nutriments, Favoris,categories
+from .forms import Search
 import requests
 import json
 import io
@@ -19,94 +19,46 @@ import os
 
 # Create your views here.
 def index(request):
+	liste_reponse = []
 	form = Search()
-	return render(request, 'index.html',{'form': form})
+	favoris = True
+	user_current = request.user
+	try:
+		user_favoris = Favoris.objects.filter(user__exact=user_current.id)
+		for favoris_obj in user_favoris:
+			aff_index = favoris_obj.aff_index
+			if aff_index:
+				favoris = False
+				id_produit = favoris_obj.produits.id
+				favoris_produit = Produits.objects.get(id__exact=id_produit)
+				produit = {}
+				produit['nom'] =  favoris_produit.generic_name_fr
+				produit['image'] = favoris_produit.image_front_url
+				produit['url'] = favoris_produit.url_site
+				produit['id'] = favoris_produit.id
+				produit['index'] = aff_index
 
-def log_out(request):
-	logout(request)
-	return redirect('/polls/', {'news':"Vous êtes maintenant déconnecté"})
+				liste_reponse.append(produit)
+	except:
+		favoris = True
 
-def get_login(request, user=''):
+	return render(request, 'index.html',{'form': form, 'trouve':liste_reponse, 'error':favoris})
 
-	if request.method == 'POST' :
-		form = LogIn(request.POST)
-		username = request.POST['log_id']
-		password = request.POST['pwd']
-		user = authenticate(request, username=username, password=password)
-		if form.is_valid():
-			if user is not None:
-				login(request, user)
-				msg = "Vous êtes maintenant connecté en tant que " + username
-				data = {'msg': msg, 'user': username}
-				user = username
-				return HttpResponseRedirect("/polls/",{'user': username})
-	else:
-		form = LogIn()
-
-	return render(request, 'log_in.html', {'form': form})
-
-def get_compte(request):
-	login = request.user.username
-	first_name = request.user.first_name
-	last_name = request.user.last_name
-	email = request.user.email
-	password = request.user.password
-
-	#data = {'email': email}
-	#form = Compte(data)
-
-	if first_name == "" and last_name == "":
-		name = login
-	elif first_name != "" and last_name == "":
-		name = first_name
-	elif first_name == "" and last_name != "":
-		name = last_name
-	elif first_name != "" and last_name != "":
-		name = first_name + " " + last_name
-	else:
-		name = "Incognito"
-	data_compte = {'email': email, 'name': name}
-
-	return render(request, 'compte.html', data_compte)
-
-
-def get_signeit(request):
-	password = False
-
-	if request.method == 'POST' :
-		form = SignIt(request.POST)
-		username = request.POST['username']
-		email = request.POST['email']
-		pass_first = request.POST['pass_first']
-		pass_second = request.POST['pass_second']
-
-		if pass_first == pass_second:
-			password = True
-			pass_final = pass_first
-
-		if form.is_valid() and password == True:
-			user = User.objects.create_user(username, email, pass_final)
-			indication = "Vous avez maintenant un compte sur notre site"
-			return HttpResponseRedirect('/polls/',{'news': indication})
-	else:
-		form = SignIt()
-
-	return render(request, 'signe_it.html', {'form': form})
 
 def get_resultat(request, search):
+	msg_search = ""
 	user_current = request.user
 	liste_reponse = []
-	#form = Search(request.POST)
-	#search_user = request.POST['search']
 	search_user = search
 	if len(search_user) == 0:
 		return HttpResponseRedirect('/polls/')
 	else:
-		answer_search = Produits.objects.filter(brands_tags__contains=search_user)
+		answer_search = Produits.objects.filter(generic_name_fr__icontains=search_user)
 
 	if not answer_search.exists():
+		dico_answer = {'error': True}
 		message = "Votre demande ne renvois aucune réponse"
-		return HttpResponseRedirect('/polls/',{'msg_search': message})
+		return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse, "msg_search":message})
 	else:
 		for answer in answer_search:
 
@@ -116,6 +68,7 @@ def get_resultat(request, search):
 				ingredient = answer.ingredients_text_fr
 				url_open =answer.url_site
 				id_produit = answer._id
+				id_tbl_produit = answer.id
 				break
 			else:
 				if answer.nova_groups:
@@ -124,11 +77,16 @@ def get_resultat(request, search):
 					ingredient = answer.ingredients_text_fr
 					url_open =answer.url_site
 					nutri_score = ""
+					id_tbl_produit = answer.id
 					break
 
 		if len(nutri_score) != 0:
 			score = nutri_score
-			compare_search = Produits.objects.filter(grade__lt=score)
+			val_cat_produit = categories.objects.filter(produit__exact=id_tbl_produit)
+			list_filter_cat = []
+			for id_cat in val_cat_produit:
+				list_filter_cat.append(id_cat.id) 
+			compare_search = Produits.objects.filter(grade__lt=score).filter(categories__in=list_filter_cat)
 		else:
 			score = nova
 			compare_search = Produits.objects.filter(nova_groups__lt=score)
@@ -146,43 +104,30 @@ def get_resultat(request, search):
 				if compare.brands_tags:
 					produit['nom'] =  compare.generic_name_fr
 					produit['image'] = compare.image_front_url
-					#produit['ingredient'] = compare.ingredients_text_fr
 					produit['url'] = compare.url_site
-					#produit['nutrition'] = compare.image_nutrition_url
 					produit['id'] = compare.id
 
-					#nutriment = Nutriments.objects.filter(produits__exact=compare.id)
-
-					#produit['nutriment'] = nutriment
-
 					compare_score = compare.grade
-
-					if int(compare_score) >= -15 and int(compare_score) <= -2:
-						produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-A.png"
-					elif int(compare_score) >= -1 and int(compare_score) <= 3:
-						produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-B.png"
-					elif int(compare_score) >= 4 and int(compare_score) <= 11:
-						produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-C.png"
-					elif int(compare_score) >= 12 and int(compare_score) <= 16:
-						produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-D.png"
-					elif int(compare_score) >= 17 and int(compare_score) <= 40:
-						produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-E.png"
-
+					nutrilien = lien_nutriscore(compare_score)
+					produit['url_img_nutri'] = nutrilien
 					save = True
-					user_favoris = Favoris.objects.filter(user__exact=user_current.id)
-					for favoris in user_favoris:
-						if favoris.produits.id == compare.id:
-							save = False
-							break
-						else:
-							save = True
-
-					produit['favoris'] = save
-					liste_reponse.append(produit)
+					try:
+						user_favoris = Favoris.objects.filter(user__exact=user_current.id)
+						for favoris in user_favoris:
+							if favoris.produits.id == compare.id:
+								save = False
+								break
+							else:
+								save = True
+						produit['favoris'] = save
+						liste_reponse.append(produit)
+					except:
+						produit['favoris'] = save
+						liste_reponse.append(produit)
+						error = "oui"
 
 	dico_answer['error'] = search_null
-	#liste_reponse.append(dico_answer)
-	return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse})
+	return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse,"msg_search":""})
 
 def redirect_resultat(request):
 	search_user = request.POST['search']
@@ -196,7 +141,6 @@ def redirect_resultat(request):
 
 def redirect_404(request, excetpion=None):
 	msg = "La page demandée n'a pas été trouvé"
-	#return HttpResponseRedirect('/polls/',{'msg': msg})
 	return redirect('/polls/', {'msg': msg})
 
 
@@ -217,20 +161,61 @@ def get_aliment(request, id_produit):
 
 	compare_score = produit.grade
 
-	if int(compare_score) >= -15 and int(compare_score) <= -2:
-		data_produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-A.png"
-	elif int(compare_score) >= -1 and int(compare_score) <= 3:
-		data_produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-B.png"
-	elif int(compare_score) >= 4 and int(compare_score) <= 11:
-		data_produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-C.png"
-	elif int(compare_score) >= 12 and int(compare_score) <= 16:
-		data_produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-D.png"
-	elif int(compare_score) >= 17 and int(compare_score) <= 40:
-		data_produit['url_img_nutri'] = "oc_projetHuit/assets/img/nutriscore-E.png"
+	nutrilien = lien_nutriscore(compare_score)
+	produit['url_img_nutri'] = nutrilien
 
 	return render(request, 'aliments.html',{'produit':data_produit})
 
-@login_required(login_url="log_in/")
+@login_required(login_url="/auth_app/log_in/")
+def save_favoris(request):
+	x = 0
+	news = ""
+	liste_reponse = []
+	user_current = request.user
+	user_favoris = Favoris.objects.filter(user__exact=user_current.id)
+	for favoris in user_favoris:
+		aff_index = favoris.aff_index
+		id_produit = favoris.produits.id
+		favoris_produit = Produits.objects.get(id__exact=id_produit)
+		produit = {}
+		produit['nom'] =  favoris_produit.generic_name_fr
+		produit['image'] = favoris_produit.image_front_url
+		produit['url'] = favoris_produit.url_site
+		produit['id'] = favoris_produit.id
+		produit['ingredient'] = favoris_produit.ingredients_text_fr
+		produit['index'] = aff_index
+		x += 1
+		compare_score = favoris_produit.grade
+		nutrilien = lien_nutriscore(compare_score)
+		produit['url_img_nutri'] = nutrilien
+		liste_reponse.append(produit)
+	
+	if x == 0:
+		info = "Vous n'avez pas encore enregistrer de produit"
+	else:
+		info = "Vous avez enregistrer " + str(x) + " produits, à tous moment vous pouvez les afficher sur votre page d'accueille pour plus de facilité."
+		
+
+	if len(liste_reponse) == 0:
+		news = "ok"
+
+
+
+	return render(request, 'save_favoris.html',{'trouve':liste_reponse, 'info': info,'news':news})
+
+def mise_index(request, id_produit):
+	favoris_produit = Favoris.objects.get(produits__exact=id_produit)
+	bool_index = favoris_produit.aff_index
+
+	if bool_index:
+		favoris_produit.aff_index = False
+	else:
+		favoris_produit.aff_index = True
+
+	favoris_produit.save()	
+	return HttpResponseRedirect('/polls/favoris')
+
+@login_required(login_url="/auth_app/log_in/")
 def save(request, id_produit):
 	user_current = request.user
 	produit = Produits.objects.get(id__exact=id_produit)
@@ -240,6 +225,21 @@ def save(request, id_produit):
 	info = "Vous avez bien enregistrer ce produit"
 
 	return HttpResponseRedirect(path_good, {'msg_save': info})
+
+def lien_nutriscore(nutri_point):
+	compare_score = nutri_point
+
+	if int(compare_score) >= -15 and int(compare_score) <= -2:
+		lien = "oc_projetHuit/assets/img/nutriscore-A.png"
+	elif int(compare_score) >= -1 and int(compare_score) <= 3:
+		lien = "oc_projetHuit/assets/img/nutriscore-B.png"
+	elif int(compare_score) >= 4 and int(compare_score) <= 11:
+		lien = "oc_projetHuit/assets/img/nutriscore-C.png"
+	elif int(compare_score) >= 12 and int(compare_score) <= 16:
+		lien = "oc_projetHuit/assets/img/nutriscore-D.png"
+	elif int(compare_score) >= 17 and int(compare_score) <= 40:
+		lien = "oc_projetHuit/assets/img/nutriscore-E.png"
+
 
 
 

@@ -1,0 +1,1 @@
+Snacks,Boissons,Viandes,Produits laitiers,Plats préparés,Biscuits,Charcuteries,Epicerie,Petit-déjeuners,Fromages,Céréales,Desserts,Sauces,Confiseries,Conserves,Surgelés,Poissons,Pâtes à tartiner,Volailles,Chocolats,Condiments,Gâteaux,Pains,Confitures,Aperitif,Frais,Jus de fruits,Graines,Huiles,Patisseries,Fruits,Miels,Aliments et boissons à base de végétaux
