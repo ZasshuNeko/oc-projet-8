@@ -15,6 +15,3 @@ urlpatterns = [
 ]
 
 handler404 = views.redirect_404
-
-#Faire un r_path pour déterminer si c'est un utilisateur demander une auth puis sur /polls/UTIL donner accès au compte
-# sur polls/util/edit donner accès au formulaire d'édition du compte

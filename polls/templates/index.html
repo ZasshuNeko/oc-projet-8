@@ -30,10 +30,16 @@
                     <div class="col-lg-10 align-self-end">
 
                         {% if user.is_authenticated %}
-                            <h1 class="text-uppercase text-white font-weight-bold">Bonjour {{ user.username }}</h1>
+                            <h1 class="text-uppercase text-white font-weight-bold" id="info_login">Bonjour {{ user.username }}</h1>
                             <hr class="divider my-4" />
                         {% endif %}
-                        <h2><p class="text-white-75 font-weight-light">{{ news }}</p></h2>
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            <il {% if message.tags %} class="{{ message.tags }}" {% endif %}><h2><p id="information" class="text-white-75 font-weight-light">{{ message }}</p></h2></il>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
                         <h2><p class="text-white-75 font-weight-light">{{ msg_search }}</p></h2>
                         <h1 class="text-uppercase text-white font-weight-bold">Du gras, oui, mais du gras de qualité !</h1>
                         <hr class="divider my-4" />

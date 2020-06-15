@@ -8,6 +8,7 @@ from django.contrib.postgres.search import SearchQuery
 from django.urls import reverse
 from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 from .forms import LogIn,SignIt
 import requests
@@ -18,7 +19,8 @@ import os
 # Create your views here.
 def log_out(request):
 	logout(request)
-	return redirect('/polls/', {'news':"Vous êtes maintenant déconnecté"})
+	messages.add_message(request,messages.WARNING,"Vous êtes maintenant déconnecté")
+	return redirect('/polls/')
 
 def get_login(request, user=''):
 
@@ -30,10 +32,7 @@ def get_login(request, user=''):
 		if form.is_valid():
 			if user is not None:
 				login(request, user)
-				msg = "Vous êtes maintenant connecté en tant que " + username
-				data = {'msg': msg, 'user': username}
-				user = username
-				return HttpResponseRedirect("/polls/",{'user': username})
+				return HttpResponseRedirect("/polls/")
 	else:
 		form = LogIn()
 
@@ -55,8 +54,8 @@ def get_signeit(request):
 
 		if form.is_valid() and password == True:
 			user = User.objects.create_user(username, email, pass_final)
-			indication = "Vous avez maintenant un compte sur notre site"
-			return HttpResponseRedirect('/polls/',{'news': indication})
+			messages.add_message(request,messages.INFO,"Vous avez maintenant un compte sur notre site")
+			return HttpResponseRedirect('/polls/')
 	else:
 		form = SignIt()
 

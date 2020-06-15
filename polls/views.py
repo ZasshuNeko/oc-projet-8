@@ -199,8 +199,6 @@ def save_favoris(request):
 	if len(liste_reponse) == 0:
 		news = "ok"
 
-
-
 	return render(request, 'save_favoris.html',{'trouve':liste_reponse, 'info': info,'news':news})
 
 def mise_index(request, id_produit):
