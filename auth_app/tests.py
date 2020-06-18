@@ -23,11 +23,10 @@ class TestAuth(TestCase):
 		test_user2.save()
 
 	def test_log_in(self):
-		login = self.client.login(username="testuser1", password='testtest')
-		response = self.client.get(reverse('login'))
-		self.assertEqual(str(response.context['user']), 'testuser1')
-		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'log_in.html')
+		default_data = {"log_id":"testuser1","pwd":"testtest"}
+		test_login = self.client.post('/auth_app/log_in/',default_data)
+		self.assertEqual(test_login.status_code, 302)
+		self.assertRedirects(test_login, '/polls/')
 
 	def test_log_out(self):
 		login = self.client.login(username="testuser2", password='testtest')
@@ -35,6 +34,18 @@ class TestAuth(TestCase):
 		self.assertIsNone(response.context)
 		self.assertEqual(response.status_code, 302)
 		self.assertRedirects(response, '/polls/')
+
+	def test_signeit(self):
+		default_data = {"username":"testuser3","email":"unittest@test.com","pass_first":"1234testtest","pass_second":"1234testtest"}
+		test_signit = self.client.post('/auth_app/signe_it/',default_data)
+		self.assertEqual(test_signit.status_code, 200)
+		self.assertTemplateUsed(test_signit, 'signe_it.html')
+
+	def test_signeiterror(self):
+		default_data = {"username":"testuser1","email":"unittest@test.com","pass_first":"1234testtest","pass_second":"1234testtest"}
+		test_signit = self.client.post('/auth_app/signe_it/',default_data)
+		self.assertEqual(test_signit.status_code, 200)
+		self.assertTemplateUsed(test_signit, 'signe_it.html')
 
 
 class AccountTestCase(LiveServerTestCase):
@@ -67,7 +78,6 @@ class AccountTestCase(LiveServerTestCase):
 
 		#submitting the form
 		submit.send_keys(Keys.RETURN)
-		print(selenium.current_url)
 		selenium.implicitly_wait(10)
 
 		#check the returned result

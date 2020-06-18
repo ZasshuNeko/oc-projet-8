@@ -8,7 +8,3 @@ urlpatterns = [
 	path('log_out/', views.log_out, name='logout'),
 	path('signe_it/', views.get_signeit, name='signeit'),
 ]
-
-
-#Faire un r_path pour déterminer si c'est un utilisateur demander une auth puis sur /polls/UTIL donner accès au compte
-# sur polls/util/edit donner accès au formulaire d'édition du compte

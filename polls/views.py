@@ -162,7 +162,7 @@ def get_aliment(request, id_produit):
 	compare_score = produit.grade
 
 	nutrilien = lien_nutriscore(compare_score)
-	produit['url_img_nutri'] = nutrilien
+	data_produit['url_img_nutri'] = nutrilien
 
 	return render(request, 'aliments.html',{'produit':data_produit})
 
@@ -237,6 +237,8 @@ def lien_nutriscore(nutri_point):
 		lien = "oc_projetHuit/assets/img/nutriscore-D.png"
 	elif int(compare_score) >= 17 and int(compare_score) <= 40:
 		lien = "oc_projetHuit/assets/img/nutriscore-E.png"
+
+	return lien
 
 
 

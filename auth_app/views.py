@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import IntegrityError
 
 from .forms import LogIn,SignIt
 import requests
@@ -53,9 +54,15 @@ def get_signeit(request):
 			pass_final = pass_first
 
 		if form.is_valid() and password == True:
-			user = User.objects.create_user(username, email, pass_final)
-			messages.add_message(request,messages.INFO,"Vous avez maintenant un compte sur notre site")
-			return HttpResponseRedirect('/polls/')
+			try:
+				user = User.objects.create_user(username, email, pass_final)
+				messages.add_message(request,messages.INFO,"Vous avez maintenant un compte sur notre site")
+				return HttpResponseRedirect('/polls/')
+			except IntegrityError:
+				messages.add_message(request,messages.INFO,"Ce compte existe déjà")
+				form = SignIt()
+				return render(request, 'signe_it.html', {'form': form})
+			
 	else:
 		form = SignIt()
 

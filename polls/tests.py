@@ -26,12 +26,8 @@ class TestApp(TestCase):
 		test_favoris.save()
 		test_favoris = Favoris.objects.create(user=test_user1,produits=id_produit1,date_ajout="08/06/2020",aff_index=False)
 		test_favoris.save()
-
-	def test_not_log(self):
-		response = self.client.get('/polls/get_compte/testuser2/')
-		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, '/polls/log_in/?next=/polls/get_compte/testuser2/')
-
+		test_favoris = Favoris.objects.create(user=test_user1,produits=id_produit1,date_ajout="08/06/2020",aff_index=True)
+		test_favoris.save()
 
 	def test_favoris(self):
 		login = self.client.login(username="testuser1", password='testtest')
@@ -43,7 +39,7 @@ class TestApp(TestCase):
 
 		check_favoris = self.client.get('/polls/favoris/')
 
-		self.assertEqual(len(check_favoris.context['trouve']), 2)
+		self.assertEqual(len(check_favoris.context['trouve']), 3)
 
 		liste_favoris = check_favoris.context['trouve']
 
@@ -52,7 +48,7 @@ class TestApp(TestCase):
 			if favoris['index']:
 				x += 1
 
-		self.assertEqual(x,0)
+		self.assertEqual(x,1)
 
 		favoris_tbl = Favoris.objects.all()
 
@@ -72,7 +68,7 @@ class TestApp(TestCase):
 			if favoris['index']:
 				x += 1
 
-		self.assertEqual(x,2)
+		self.assertEqual(x,3)
 
 	def test_search(self):
 		terme_search = "nutella"
@@ -87,6 +83,22 @@ class TestApp(TestCase):
 				self.assertEqual(response.status_code, 200)
 			else:
 				self.assertNotEqual(len(response.context['trouve']), 0)
+
+	def test_index(self):
+		login = self.client.login(username="testuser1", password='testtest')
+		response = self.client.get(reverse('login'))
+		self.assertEqual(str(response.context['user']), 'testuser1')
+		self.assertEqual(response.status_code, 200)
+
+		response = self.client.get('/polls/')
+		self.assertNotEqual(len(response.context['trouve']),0)
+
+	def test_get_aliment(self):
+		data = {'id_produit':2}
+		response = self.client.get('/polls/aliments/2/',data)
+		self.assertNotEqual(len(response.context['produit']),0)
+
+
 
 
 

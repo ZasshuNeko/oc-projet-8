@@ -40,23 +40,27 @@ def maj_bdd(apps, schema_editor):
         headers = {}
         #reponse = requests.request("GET",url,headers=headers, params=playload)
         reponse = requests.get(url,params=playload)
-        f = reponse.json()
-        for dic in f['products']:
-            if len(dic['product_name']) > 0:
-                dico = {}
-                dico_construc = {}
-                if dic['_id'] not in liste_id:
-                    for key, valeur in dic.items():
-                        if key in liste_field:
-                            dico[key] = valeur
-                            if key == '_id':
-                                liste_id.append(valeur)
+        try:
 
-                #cle_dico = "produit" + str(x)
-                #dico_construc[cle_dico] = dico
-                if len(dic) != 0:
-                    nw_liste.append(dico)
-                #x += 1
+            f = reponse.json()
+            for dic in f['products']:
+                if len(dic['product_name']) > 0:
+                    dico = {}
+                    dico_construc = {}
+                    if dic['_id'] not in liste_id:
+                        for key, valeur in dic.items():
+                            if key in liste_field:
+                                dico[key] = valeur
+                                if key == '_id':
+                                    liste_id.append(valeur)
+
+                    #cle_dico = "produit" + str(x)
+                    #dico_construc[cle_dico] = dico
+                    if len(dic) != 0:
+                        nw_liste.append(dico)
+                    #x += 1
+        except:
+            print("une erreur")
 
     #with open('C:\\Users\\Admin\\Documents\\Projet_8\\OCprojetHuit\\polls\\templates\\fichier.json','w') as f_write:
         #json.dump(f['products'][5],f_write)

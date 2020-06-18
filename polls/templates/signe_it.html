@@ -32,8 +32,15 @@
                             <hr class="divider my-4" />
                     </div>
                     <div class="col-lg-8 align-self-baseline bg-light border border-primary">
-                        <h6><p class=" font-weight-light mb-5">Cela ne prend pas très longtemps</p></h6>
+                        <h6><p class="font-weight-light mb-5">Cela ne prend pas très longtemps</p></h6>
                         <form action="" method="post" class="was-validated">
+                            {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            <il {% if message.tags %} class="{{ message.tags }}" {% endif %}><h2><p id="information" class="font-weight-light mb-5">{{ message }}</p></h2></il>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
                             <div class="form-group">
                                 <ul>
                                     {% csrf_token %}

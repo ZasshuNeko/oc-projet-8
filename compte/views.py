@@ -36,7 +36,7 @@ def get_compte(request, user_name):
 		name = "Incognito"
 	data_compte = {'email': email, 'name': name}
 
-	return render(request, 'compte.html', data_compte)
+	return render(request, 'compte.html', {'data':data_compte})
 
 @login_required(login_url="/auth_app/log_in/")
 def edit_compte(request, username):
@@ -76,6 +76,7 @@ def edit_valide(request, username):
 		name = user_current.first_name + " " + user_current.last_name
 	else:
 		name = "Incognito"
+		
 	data_compte = {'email': user_current.email, 'name': name}
 
 	return render(request, 'compte.html', data_compte)
