@@ -1,1 +1,1 @@
-web: gunicorn OCprojetHuit.wsgi --log-file
+web: gunicorn OCprojetHuit.wsgi --log-file -
