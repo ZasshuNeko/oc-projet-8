@@ -22,8 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'x693c28g7ptqmwg)enro2wuxe*6-_wovm)d&i90k9-gx#&_4=l'
-
+#SECRET_KEY = 'x693c28g7ptqmwg)enro2wuxe*6-_wovm)d&i90k9-gx#&_4=l'
+SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'OCprojetHuit.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -92,6 +92,12 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '', #os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
+'''
+
+
+DATABASES = {
+    'default': {dj_database_url.config(default=config('DATABASE_URL'))}
 }
 
 
