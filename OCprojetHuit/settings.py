@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'x693c28g7ptqmwg)enro2wuxe*6-_wovm)d&i90k9-gx#&_4=l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['app-pure-beurre.herokuapp.com']
 
@@ -137,7 +137,7 @@ STATICFILES_DIRS = (
 )
 
 #Configuration whitenoise
-STATICFILES_STORAGE = 'whitenoise.django.GzipManfestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.django.CompressedManifestStaticFilesStorage'
 
 import dj_database_url
 prod_db = dj_database_url.config(conn_max_age=500)
