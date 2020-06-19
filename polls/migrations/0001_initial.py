@@ -14,11 +14,11 @@ import os
 
 def maj_bdd(apps, schema_editor):
     chemin = os.getcwd()
-    with io.open(chemin + '\\polls\\migrations\\config\\fichier.txt',mode='r',encoding='utf-8') as f_read:
+    with io.open(chemin + '/polls/migrations/config/fichier.txt',mode='r',encoding='utf-8') as f_read:
         fichier = f_read.read()
-    with io.open(chemin + '\\polls\\migrations\\config\\field.txt',mode='r',encoding='utf-8') as f_field:
+    with io.open(chemin + '/polls/migrations/config/field.txt',mode='r',encoding='utf-8') as f_field:
         field = f_field.read()
-    with io.open(chemin + '\\polls\\migrations\\config\\tbl_cat.txt',mode='r',encoding='utf-8') as f_cat:
+    with io.open(chemin + '/polls/migrations/config/tbl_cat.txt',mode='r',encoding='utf-8') as f_cat:
         cat_tbl = f_cat.read()
     dico = {}
     nw_liste = []
