@@ -11,7 +11,7 @@ from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
 
 from .models import Produits, Vendeurs, Nutriments, Favoris,categories
-from .forms import Search
+from .forms import Search, SearchMenu
 import requests
 import json
 import io
@@ -21,6 +21,7 @@ import os
 def index(request):
 	liste_reponse = []
 	form = Search()
+	formMenu = SearchMenu()
 	favoris = True
 	user_current = request.user
 	try:
@@ -42,7 +43,7 @@ def index(request):
 	except:
 		favoris = True
 
-	return render(request, 'index.html',{'form': form, 'trouve':liste_reponse, 'error':favoris})
+	return render(request, 'index.html',{'form': form,'formMenu':formMenu, 'trouve':liste_reponse, 'error':favoris})
 
 
 def get_resultat(request, search):
@@ -127,7 +128,7 @@ def get_resultat(request, search):
 						error = "oui"
 
 	dico_answer['error'] = search_null
-	return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse,"msg_search":""})
+	return render(request, 'resultat.html', {'formMenu':SearchMenu(),'cherche':dico_answer,'trouve':liste_reponse,"msg_search":""})
 
 def redirect_resultat(request):
 	search_user = request.POST['search']
@@ -137,7 +138,7 @@ def redirect_resultat(request):
 	else:
 		adresse_redirect = '/polls/save/' + search_user
 
-	return HttpResponseRedirect(adresse_redirect,{'search': search_user})
+	return HttpResponseRedirect(adresse_redirect,{'formMenu':SearchMenu(),'search': search_user})
 
 def redirect_404(request, excetpion=None):
 	msg = "La page demandée n'a pas été trouvé"
@@ -164,7 +165,7 @@ def get_aliment(request, id_produit):
 	nutrilien = lien_nutriscore(compare_score)
 	data_produit['url_img_nutri'] = nutrilien
 
-	return render(request, 'aliments.html',{'produit':data_produit})
+	return render(request, 'aliments.html',{'formMenu':SearchMenu(),'produit':data_produit})
 
 @login_required(login_url="/auth_app/log_in/")
 def save_favoris(request):
@@ -199,7 +200,7 @@ def save_favoris(request):
 	if len(liste_reponse) == 0:
 		news = "ok"
 
-	return render(request, 'save_favoris.html',{'trouve':liste_reponse, 'info': info,'news':news})
+	return render(request, 'save_favoris.html',{'formMenu':SearchMenu(),'trouve':liste_reponse, 'info': info,'news':news})
 
 def mise_index(request, id_produit):
 	favoris_produit = Favoris.objects.get(produits__exact=id_produit)
@@ -222,7 +223,7 @@ def save(request, id_produit):
 	path_good = path_back.replace("save","aliments")
 	info = "Vous avez bien enregistrer ce produit"
 
-	return HttpResponseRedirect(path_good, {'msg_save': info})
+	return HttpResponseRedirect(path_good, {'formMenu':SearchMenu(),'msg_save': info})
 
 def lien_nutriscore(nutri_point):
 	compare_score = nutri_point

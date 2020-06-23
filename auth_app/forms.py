@@ -1,6 +1,9 @@
 from django import forms
 from django.core.validators import *
 
+class SearchMenu(forms.Form):
+	search = forms.CharField(label="",widget=forms.TextInput(attrs={'placeholder':'Chercher'}))
+
 class LogIn(forms.Form):
 	log_id = forms.CharField(label='Identifiant',  max_length=100)
 	pwd = forms.CharField(label='Mot de passe', widget=forms.PasswordInput(), max_length=100)

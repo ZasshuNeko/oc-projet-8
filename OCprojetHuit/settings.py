@@ -22,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'x693c28g7ptqmwg)enro2wuxe*6-_wovm)d&i90k9-gx#&_4=l'
-SECRET_KEY = 'SECRET_KEY'
+SECRET_KEY = 'x693c28g7ptqmwg)enro2wuxe*6-_wovm)d&i90k9-gx#&_4=l'
+#SECRET_KEY = 'SECRET_KEY'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['app-pure-beurre.herokuapp.com']
+ALLOWED_HOSTS = ['app-pure-beurre.herokuapp.com','127.0.0.1']
 
 
 # Application definition
@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'OCprojetHuit.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -93,13 +93,6 @@ DATABASES = {
         'PORT': '', #os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-'''
-
-'''
-DATABASES = {
-    'default': {dj_database_url.config(default='DATABASE_URL')}
-}
-'''
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -143,10 +136,10 @@ STATICFILES_DIRS = (
 )
 
 #Configuration whitenoise
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-django_heroku.settings(locals())
+#django_heroku.settings(locals())
 '''
 prod_db = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(prod_db)

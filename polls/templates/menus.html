@@ -5,7 +5,15 @@
         <a class="navbar-brand js-scroll-trigger" href="/polls/">Pur Beurre</a><button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto my-2 my-lg-0">
-                <li class="nav-item"><div class="input_zone"><input type='text' class='form-control nav-link js-scroll-trigger' name="inputzone"></div></li>
+                <li class="nav-item"><form action="/polls/r/resultat/" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                        {% bootstrap_form formMenu layout="inline" form_group_class="form-group mb-2" %}
+                        <div class="input-group-append">
+                        {% bootstrap_button "Chercher" button_type="submit" button_class="btn btn-success mb-2" %}
+                    </div>
+                </div>
+                        </form></li>
                 <li class="nav-item">
                     {% if user.is_authenticated %}
                         <a class="nav-link js-scroll-trigger" href="/compte/get_compte/{{user.username}}/"><img class="img-fluid" id="icone_auth" src="{% static 'oc_projetHuit/assets/img/account_icon_50.png' %}" alt="" /></a>

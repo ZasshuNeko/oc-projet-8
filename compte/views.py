@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
 
-from .forms import Edit
+from .forms import Edit,SearchMenu
 import requests
 import json
 import io
@@ -36,7 +36,7 @@ def get_compte(request, user_name):
 		name = "Incognito"
 	data_compte = {'email': email, 'name': name}
 
-	return render(request, 'compte.html', {'data':data_compte})
+	return render(request, 'compte.html', {'formMenu':SearchMenu(),'data':data_compte})
 
 @login_required(login_url="/auth_app/log_in/")
 def edit_compte(request, username):
@@ -47,7 +47,7 @@ def edit_compte(request, username):
 	form = Edit(default_data)
 
 
-	return render(request, 'compte_edit.html',{'form':form})
+	return render(request, 'compte_edit.html',{'formMenu':SearchMenu(),'form':form})
 
 
 @login_required(login_url="/auth_app/log_in/")
@@ -77,6 +77,6 @@ def edit_valide(request, username):
 	else:
 		name = "Incognito"
 		
-	data_compte = {'email': user_current.email, 'name': name}
+	data_compte = {'email': user_current.email, 'name': name,'formMenu':SearchMenu()}
 
 	return render(request, 'compte.html', data_compte)

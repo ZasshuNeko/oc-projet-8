@@ -50,8 +50,12 @@
                     <div class="col-lg-10 align-self-baseline">
                         <form action="/polls/r/resultat/" method="post">
                         {% csrf_token %}
-                        {% bootstrap_form form layout="inline" form_group_class="form-group mb-2" %}
+                        <div class="input-group">
+                        {% bootstrap_form form layout="inline" form_group_class="mb-2" %}
+                        <div class="input-group-append">
                         {% bootstrap_button "Chercher" button_type="submit" button_class="btn btn-success mb-2" %}
+                    </div>
+                </div>
                         </form>
                     </div>
                 </div>

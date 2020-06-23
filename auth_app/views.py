@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import IntegrityError
 
-from .forms import LogIn,SignIt
+from .forms import LogIn,SignIt,SearchMenu
 import requests
 import json
 import io
@@ -37,7 +37,7 @@ def get_login(request, user=''):
 	else:
 		form = LogIn()
 
-	return render(request, 'log_in.html', {'form': form})
+	return render(request, 'log_in.html', {'formMenu':SearchMenu(),'form': form})
 
 def get_signeit(request):
 	password = False
@@ -61,9 +61,9 @@ def get_signeit(request):
 			except IntegrityError:
 				messages.add_message(request,messages.INFO,"Ce compte existe déjà")
 				form = SignIt()
-				return render(request, 'signe_it.html', {'form': form})
+				return render(request, 'signe_it.html', {'formMenu':SearchMenu(),'form': form})
 			
 	else:
 		form = SignIt()
 
-	return render(request, 'signe_it.html', {'form': form})
+	return render(request, 'signe_it.html', {'formMenu':SearchMenu(),'form': form})
