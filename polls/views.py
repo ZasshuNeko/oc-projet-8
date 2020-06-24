@@ -16,6 +16,7 @@ import requests
 import json
 import io
 import os
+import configparser
 
 # Create your views here.
 def index(request):
@@ -49,7 +50,6 @@ def index(request):
 def get_resultat(request, search):
 	msg_search = ""
 	user_current = request.user
-	liste_reponse = []
 	search_user = search
 	if len(search_user) == 0:
 		return HttpResponseRedirect('/polls/')
@@ -57,20 +57,25 @@ def get_resultat(request, search):
 		answer_search = Produits.objects.filter(generic_name_fr__icontains=search_user)
 
 	if not answer_search.exists():
-		dico_answer = {'error': True}
+		liste_reponse = search_categorie(search_user,user_current)
+		search_null = False
+		dico_answer = {"search":search_user}
+		#dico_answer = {'error': True}
 		message = "Votre demande ne renvois aucune réponse"
-		return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse, "msg_search":message})
+		#return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse, "msg_search":message,'formMenu':SearchMenu()})
 	else:
 		for answer in answer_search:
-
-			if answer.grade:
+			id_cat_test = categories.objects.filter(produit__exact=answer.id)
+			if answer.grade :
 				nutri_score = answer.grade
 				image_produit = answer.image_front_url
 				ingredient = answer.ingredients_text_fr
 				url_open =answer.url_site
 				id_produit = answer._id
-				id_tbl_produit = answer.id
-				break
+				if id_cat_test.exists():
+					id_tbl_produit = answer.id
+					break
+			'''
 			else:
 				if answer.nova_groups:
 					nova = answer.nova_groups
@@ -80,7 +85,7 @@ def get_resultat(request, search):
 					nutri_score = ""
 					id_tbl_produit = answer.id
 					break
-
+			'''
 		if len(nutri_score) != 0:
 			score = nutri_score
 			val_cat_produit = categories.objects.filter(produit__exact=id_tbl_produit)
@@ -88,9 +93,9 @@ def get_resultat(request, search):
 			for id_cat in val_cat_produit:
 				list_filter_cat.append(id_cat.id) 
 			compare_search = Produits.objects.filter(grade__lt=score).filter(categories__in=list_filter_cat)
-		else:
+		"""else:
 			score = nova
-			compare_search = Produits.objects.filter(nova_groups__lt=score)
+			compare_search = Produits.objects.filter(nova_groups__lt=score)"""
 
 		dico_answer = {"score":score, "search":search_user,"image":image_produit,"ingredient":ingredient,'url':url_open}
 
@@ -98,37 +103,90 @@ def get_resultat(request, search):
 			search_null = True
 		else:
 			search_null = False
+			liste_reponse = generer_dic_produit(compare_search,user_current)
 
-			produit = {}
-			for compare in compare_search:
-				produit = {}
-				if compare.brands_tags:
-					produit['nom'] =  compare.generic_name_fr
-					produit['image'] = compare.image_front_url
-					produit['url'] = compare.url_site
-					produit['id'] = compare.id
-
-					compare_score = compare.grade
-					nutrilien = lien_nutriscore(compare_score)
-					produit['url_img_nutri'] = nutrilien
-					save = True
-					try:
-						user_favoris = Favoris.objects.filter(user__exact=user_current.id)
-						for favoris in user_favoris:
-							if favoris.produits.id == compare.id:
-								save = False
-								break
-							else:
-								save = True
-						produit['favoris'] = save
-						liste_reponse.append(produit)
-					except:
-						produit['favoris'] = save
-						liste_reponse.append(produit)
-						error = "oui"
-
+			
 	dico_answer['error'] = search_null
 	return render(request, 'resultat.html', {'formMenu':SearchMenu(),'cherche':dico_answer,'trouve':liste_reponse,"msg_search":""})
+
+def search_categorie(answer_utilisateur,user_current):
+	search_categorie = categories.objects.filter(nom__icontains=answer_utilisateur)
+	x = 0
+	liste = []
+
+	if not search_categorie.exists():
+		search_categorie = regex_search(answer_utilisateur)
+
+	for categorie in search_categorie:
+		search_produit = Produits.objects.filter().filter(categories__id=categorie.id)
+		if search_produit.exists():
+			if x > 0:
+				liste = [i for i in liste_reponse]
+				liste_reponse = generer_dic_produit(search_produit,user_current)
+				liste_reponse = liste + liste_reponse
+				liste = []
+			else:
+				liste_reponse = generer_dic_produit(search_produit,user_current)
+
+			x += 1
+	return liste_reponse
+
+def regex_search(search_user):
+	x = 0
+	terme = ""
+	for caractere in search_user:
+		if terme == "":
+			terme = caractere
+
+		search_categorie = categories.objects.filter(nom__icontains=terme)
+		if search_categorie.exists():
+			terme = terme + caractere
+			x += 1
+		else:
+			break
+	ss_search_user = search_user[0:x]
+	search_categorie = categories.objects.filter(nom__icontains=ss_search_user)
+	return search_categorie
+
+
+def generer_dic_produit(compare_search,user_current):
+	produit = {}
+	reponse = []
+	for compare in compare_search:
+		produit = {}
+		if compare.brands_tags:
+			produit['nom'] =  compare.generic_name_fr
+			produit['image'] = compare.image_front_url
+			produit['url'] = compare.url_site
+			produit['id'] = compare.id
+
+			compare_score = compare.grade
+			if compare_score == None:
+				nutrilien = "oc_projetHuit/assets/img/nutriscore-NC.png"
+			else:
+				nutrilien = lien_nutriscore(compare_score)
+			produit['url_img_nutri'] = nutrilien
+			liste_reponse = generer_liste_reponse(produit,reponse,user_current,compare)
+	return liste_reponse
+
+def generer_liste_reponse(produit,liste_reponse,user_current,compare):
+	save = True
+	try:
+		user_favoris = Favoris.objects.filter(user__exact=user_current.id)
+		for favoris in user_favoris:
+			if favoris.produits.id == compare.id:
+				save = False
+				break
+			else:
+				save = True
+		produit['favoris'] = save
+		liste_reponse.append(produit)
+	except:
+		produit['favoris'] = save
+		liste_reponse.append(produit)
+		error = "oui"
+	return liste_reponse
+
 
 def redirect_resultat(request):
 	search_user = request.POST['search']
