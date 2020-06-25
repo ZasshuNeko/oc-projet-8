@@ -27,7 +27,7 @@ SECRET_KEY = 'SECRET_KEY'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['app-pure-beurre.herokuapp.com','127.0.0.1']
+ALLOWED_HOSTS = ['app-pure-beurre.herokuapp.com']
 
 
 # Application definition
@@ -84,11 +84,11 @@ WSGI_APPLICATION = 'OCprojetHuit.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
-
+'''
 '''
 DATABASES = {
     'default': {
