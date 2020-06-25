@@ -10,6 +10,7 @@ import requests
 import json
 import io
 import os
+import unicodedata
 
 
 def maj_bdd(apps, schema_editor):
@@ -70,7 +71,9 @@ def maj_bdd(apps, schema_editor):
     Categorie = apps.get_model('polls', 'Categories')
 
     for cat in liste_tbl_cat:
-        Categorie.objects.create(nom=cat)
+        no_accent = "".join((c for c in unicodedata.normalize('NFD',cat) if unicodedata.category(c) != 'Mn'))
+        Categorie.objects.create(nom=cat,nom_iaccents=no_accent)
+
 
     for item in nw_liste:
         with connection.cursor() as cursor:
@@ -165,6 +168,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nom', models.CharField(max_length=5024)),
+                ('nom_iaccents', models.CharField(max_length=5024)),
                 ('produit', models.ManyToManyField('Produits')),
 
             ],

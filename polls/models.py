@@ -22,6 +22,7 @@ class Produits(models.Model):
 
 class categories(models.Model):
 	nom = models.CharField(max_length=5000)
+	nom_iaccents = models.CharField(max_length=5000)
 	produit = models.ManyToManyField(Produits)
 
 class Vendeurs(models.Model):

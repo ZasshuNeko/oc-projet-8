@@ -16,7 +16,8 @@ import requests
 import json
 import io
 import os
-import configparser
+import unicodedata
+
 
 # Create your views here.
 def index(request):
@@ -57,12 +58,12 @@ def get_resultat(request, search):
 		answer_search = Produits.objects.filter(generic_name_fr__icontains=search_user)
 
 	if not answer_search.exists():
-		liste_reponse = search_categorie(search_user,user_current)
-		search_null = False
+		liste_reponse = search_categorie(search_user,user_current,request)
+		if len(liste_reponse) == 0:
+			search_null = True
+		else:
+			search_null = False
 		dico_answer = {"search":search_user}
-		#dico_answer = {'error': True}
-		message = "Votre demande ne renvois aucune réponse"
-		#return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse, "msg_search":message,'formMenu':SearchMenu()})
 	else:
 		for answer in answer_search:
 			id_cat_test = categories.objects.filter(produit__exact=answer.id)
@@ -109,45 +110,32 @@ def get_resultat(request, search):
 	dico_answer['error'] = search_null
 	return render(request, 'resultat.html', {'formMenu':SearchMenu(),'cherche':dico_answer,'trouve':liste_reponse,"msg_search":""})
 
-def search_categorie(answer_utilisateur,user_current):
-	search_categorie = categories.objects.filter(nom__icontains=answer_utilisateur)
+def search_categorie(answer_utilisateur,user_current,request):
+	answer_no_accent = "".join((c for c in unicodedata.normalize('NFD',answer_utilisateur) if unicodedata.category(c) != 'Mn'))
+	search_categorie = categories.objects.filter(nom_iaccents__icontains=answer_no_accent)
 	x = 0
 	liste = []
 
-	if not search_categorie.exists():
-		search_categorie = regex_search(answer_utilisateur)
+	if search_categorie.exists():
 
-	for categorie in search_categorie:
-		search_produit = Produits.objects.filter().filter(categories__id=categorie.id)
-		if search_produit.exists():
-			if x > 0:
-				liste = [i for i in liste_reponse]
-				liste_reponse = generer_dic_produit(search_produit,user_current)
-				liste_reponse = liste + liste_reponse
-				liste = []
-			else:
-				liste_reponse = generer_dic_produit(search_produit,user_current)
+		for categorie in search_categorie:
+			search_produit = Produits.objects.filter().filter(categories__id=categorie.id)
+			if search_produit.exists():
+				if x > 0:
+					liste = [i for i in liste_reponse]
+					liste_reponse = generer_dic_produit(search_produit,user_current)
+					liste_reponse = liste + liste_reponse
+					liste = []
+				else:
+					liste_reponse = generer_dic_produit(search_produit,user_current)
 
-			x += 1
+				x += 1
+	else:
+		liste_reponse = []
+		#dico_answer = {'error': True}
+		#message = "Votre demande ne renvois aucune réponse"
+		#return render(request, 'resultat.html', {'cherche':dico_answer,'trouve':liste_reponse, "msg_search":message,'formMenu':SearchMenu()})
 	return liste_reponse
-
-def regex_search(search_user):
-	x = 0
-	terme = ""
-	for caractere in search_user:
-		if terme == "":
-			terme = caractere
-
-		search_categorie = categories.objects.filter(nom__icontains=terme)
-		if search_categorie.exists():
-			terme = terme + caractere
-			x += 1
-		else:
-			break
-	ss_search_user = search_user[0:x]
-	search_categorie = categories.objects.filter(nom__icontains=ss_search_user)
-	return search_categorie
-
 
 def generer_dic_produit(compare_search,user_current):
 	produit = {}
