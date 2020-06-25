@@ -148,6 +148,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 #prod_db = dj_database_url.config(conn_max_age=500)
-DATABASES['default'] = dj_database_url.config(default='DATABASE_URL')
+DATABASES['default'] = dj_database_url.config(conn_max_age=500)
 django_heroku.settings(locals())
 
