@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'OCprojetHuit.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default=config())
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
 
 '''
@@ -146,8 +146,8 @@ STATICFILES_DIRS = (
 #Configuration whitenoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-'''
+
 django_heroku.settings(locals())
 prod_db = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(prod_db)
-'''
+
