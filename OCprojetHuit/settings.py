@@ -22,7 +22,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'x693c28g7ptqmwg)enro2wuxe*6-_wovm)d&i90k9-gx#&_4=l'
 SECRET_KEY = 'SECRET_KEY'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -34,7 +33,6 @@ ALLOWED_HOSTS = ['app-pure-beurre.herokuapp.com']
 
 INSTALLED_APPS = [
     'bootstrap4',
-    #'OCprojetHuit.polls.apps.PollsConfig',
     'auth_app.apps.AuthAppConfig',
     'compte.apps.CompteConfig',
     'polls.apps.PollsConfig',
@@ -46,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
-    #'herokuapp',
 ]
 
 MIDDLEWARE = [
@@ -88,18 +85,7 @@ WSGI_APPLICATION = 'OCprojetHuit.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config()
 }
-'''
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ocprojethuit',
-        'USER': 'postgres',
-        'PASSWORD': 'ocsqlpassRooT*',
-        'HOST': 'localhost',
-        'PORT': '', #os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-'''
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -145,8 +131,6 @@ STATICFILES_DIRS = (
 #Configuration whitenoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
-#prod_db = dj_database_url.config(conn_max_age=500)
 DATABASES['default'] = dj_database_url.config(conn_max_age=500)
 django_heroku.settings(locals())
 

@@ -14,12 +14,14 @@ import unicodedata
 
 
 def maj_bdd(apps, schema_editor):
+    ''' Gènère un lot de donnée exemple, si vous voulez plus de résultat augmenter la page size
+    Generate a batch of example data, if you want more results increase the page size '''
     chemin = os.getcwd()
-    with io.open(chemin + '/polls/migrations/config/fichier.txt',mode='r',encoding='utf-8') as f_read:
+    with io.open(chemin + '/polls/migrations/config/fichier.txt', mode='r', encoding='utf-8') as f_read:
         fichier = f_read.read()
-    with io.open(chemin + '/polls/migrations/config/field.txt',mode='r',encoding='utf-8') as f_field:
+    with io.open(chemin + '/polls/migrations/config/field.txt', mode='r', encoding='utf-8') as f_field:
         field = f_field.read()
-    with io.open(chemin + '/polls/migrations/config/tbl_cat.txt',mode='r',encoding='utf-8') as f_cat:
+    with io.open(chemin + '/polls/migrations/config/tbl_cat.txt', mode='r', encoding='utf-8') as f_cat:
         cat_tbl = f_cat.read()
     dico = {}
     nw_liste = []
@@ -32,15 +34,14 @@ def maj_bdd(apps, schema_editor):
         url = "https://fr.openfoodfacts.org/cgi/search.pl?"
         playload = {
             'action': 'process',
-            'tagtype_0':'categories',
-            'tage_contains_0':'contains',
+            'tagtype_0': 'categories',
+            'tage_contains_0': 'contains',
             'tag_0': cat,
-            'page_size':'90',
-            'json' : 'true'
+            'page_size': '90',
+            'json': 'true'
         }
         headers = {}
-        #reponse = requests.request("GET",url,headers=headers, params=playload)
-        reponse = requests.get(url,params=playload)
+        reponse = requests.get(url, params=playload)
         try:
 
             f = reponse.json()
@@ -55,25 +56,20 @@ def maj_bdd(apps, schema_editor):
                                 if key == '_id':
                                     liste_id.append(valeur)
 
-                    #cle_dico = "produit" + str(x)
-                    #dico_construc[cle_dico] = dico
                     if len(dic) != 0:
                         nw_liste.append(dico)
-                    #x += 1
-        except:
+        except BaseException:
             print("une erreur")
 
-    #with open('C:\\Users\\Admin\\Documents\\Projet_8\\OCprojetHuit\\polls\\templates\\fichier.json','w') as f_write:
-        #json.dump(f['products'][5],f_write)
     Produits = apps.get_model('polls', 'Produits')
     Vendeurs = apps.get_model('polls', 'Vendeurs')
     Nutriments = apps.get_model('polls', 'Nutriments')
     Categorie = apps.get_model('polls', 'Categories')
 
     for cat in liste_tbl_cat:
-        no_accent = "".join((c for c in unicodedata.normalize('NFD',cat) if unicodedata.category(c) != 'Mn'))
-        Categorie.objects.create(nom=cat,nom_iaccents=no_accent)
-
+        no_accent = "".join((c for c in unicodedata.normalize(
+            'NFD', cat) if unicodedata.category(c) != 'Mn'))
+        Categorie.objects.create(nom=cat, nom_iaccents=no_accent)
 
     for item in nw_liste:
         with connection.cursor() as cursor:
@@ -92,7 +88,18 @@ def maj_bdd(apps, schema_editor):
 
                 liste_nutriment = item.get("nutriments")
                 if len(item) != 0:
-                    nw_produit = Produits.objects.create(ingredient=item.get("ingredients_text"),url_image_ingredients=item.get("image_ingredients_url"),brands_tags=brand,grade=liste_nutriment.get("nutrition-score-fr_100g"),image_front_url=item.get("image_front_url"),image_nutrition_url=item.get("image_nutrition_url"),nova_groups=item.get("nova_groups"),generic_name_fr=item.get("product_name"),url_site=item.get("url"),ingredients_text_fr=item.get("ingredients_text_fr"),_id=item.get("_id"))
+                    nw_produit = Produits.objects.create(
+                        ingredient=item.get("ingredients_text"),
+                        url_image_ingredients=item.get("image_ingredients_url"),
+                        brands_tags=brand,
+                        grade=liste_nutriment.get("nutrition-score-fr_100g"),
+                        image_front_url=item.get("image_front_url"),
+                        image_nutrition_url=item.get("image_nutrition_url"),
+                        nova_groups=item.get("nova_groups"),
+                        generic_name_fr=item.get("product_name"),
+                        url_site=item.get("url"),
+                        ingredients_text_fr=item.get("ingredients_text_fr"),
+                        _id=item.get("_id"))
                     nw_produit.save()
                     for cat_produits in liste_cat_produit:
                         list_cat_op = cat_produits.split(',')
@@ -102,17 +109,19 @@ def maj_bdd(apps, schema_editor):
                         if len(list(ensemble)) > 0:
                             cat_op = list(ensemble)
                             try:
-                                object_cat = Categorie.objects.get(nom__exact=cat_op[0])
+                                object_cat = Categorie.objects.get(
+                                    nom__exact=cat_op[0])
                                 object_cat.save()
                                 id_cat = object_cat.id
                                 object_cat.produit.add(nw_produit)
                             except Categorie.DoesNotExist:
-                                b = cat_produit, '+++++++++++'
+                                b = cat_produit
 
                     for stores in item.get("stores_tags"):
-                        Vendeurs.objects.create(produits=nw_produit,nom=stores)
+                        Vendeurs.objects.create(
+                            produits=nw_produit, nom=stores)
 
-                    for cle,valeur in liste_nutriment.items():
+                    for cle, valeur in liste_nutriment.items():
                         unit = ""
                         val_100 = 0
                         label = ""
@@ -127,7 +136,8 @@ def maj_bdd(apps, schema_editor):
                                 label = label[0]
 
                             if len(unit) != 0 or len(str(val_100)) != 0:
-                                Nutriments.objects.create(produits=nw_produit,nom=label,unite=unit,valeur=val_100)
+                                Nutriments.objects.create(
+                                    produits=nw_produit, nom=label, unite=unit, valeur=val_100)
                                 unit = ""
                                 val_100 = 0
             except AttributeError:
@@ -137,7 +147,7 @@ def maj_bdd(apps, schema_editor):
 class Migration(migrations.Migration):
 
     initial = True
-    
+
     dependencies = []
 
     operations = [
@@ -146,11 +156,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('ingredient', models.CharField(max_length=5024)),
-                ('url_image_ingredients', models.URLField(max_length=5024,null=True)),
+                ('url_image_ingredients', models.URLField(max_length=5024, null=True)),
                 ('brands_tags', models.CharField(max_length=500)),
                 ('grade', models.CharField(max_length=500, blank=True, null=True)),
-                ('image_front_url', models.URLField(max_length=5024,null=True)),
-                ('image_nutrition_url', models.URLField(max_length=5024,null=True)),
+                ('image_front_url', models.URLField(max_length=5024, null=True)),
+                ('image_nutrition_url', models.URLField(max_length=5024, null=True)),
                 ('nova_groups', models.CharField(max_length=500, null=True)),
                 ('generic_name_fr', models.CharField(max_length=500)),
                 ('url_site', models.URLField(max_length=5024)),
@@ -159,7 +169,7 @@ class Migration(migrations.Migration):
 
             ],
             options={
-                'db_table':'polls_produits',
+                'db_table': 'polls_produits',
                 'managed': True,
             },
         ),
@@ -173,7 +183,7 @@ class Migration(migrations.Migration):
 
             ],
             options={
-                'db_table':'polls_categories',
+                'db_table': 'polls_categories',
                 'managed': True,
             },
         ),
@@ -185,7 +195,7 @@ class Migration(migrations.Migration):
                 ('nom', models.CharField(max_length=300)),
             ],
             options={
-                'db_table':'polls_vendeurs',
+                'db_table': 'polls_vendeurs',
                 'managed': True,
             },
         ),
@@ -196,10 +206,10 @@ class Migration(migrations.Migration):
                 ('produits', models.ForeignKey('Produits', on_delete=models.CASCADE)),
                 ('nom', models.CharField(max_length=5000)),
                 ('unite', models.CharField(max_length=10)),
-                ('valeur',models.FloatField())
+                ('valeur', models.FloatField())
             ],
             options={
-                'db_table':'polls_nutriments',
+                'db_table': 'polls_nutriments',
                 'managed': True,
             },
         ),
@@ -213,10 +223,9 @@ class Migration(migrations.Migration):
                 ('aff_index', models.BooleanField()),
             ],
             options={
-                'db_table':'polls_favoris',
+                'db_table': 'polls_favoris',
                 'managed': True,
             },
         ),
         migrations.RunPython(maj_bdd),
     ]
-
