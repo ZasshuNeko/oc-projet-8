@@ -93,7 +93,7 @@ def get_resultat(request, search):
 			list_filter_cat = []
 			for id_cat in val_cat_produit:
 				list_filter_cat.append(id_cat.id) 
-			compare_search = Produits.objects.filter(grade__lt=score).filter(categories__in=list_filter_cat)
+			compare_search = Produits.objects.filter(grade__lt=score).filter(categories__in=list_filter_cat).order_by('generic_name_fr')
 		"""else:
 			score = nova
 			compare_search = Produits.objects.filter(nova_groups__lt=score)"""
@@ -223,7 +223,7 @@ def save_favoris(request):
 	for favoris in user_favoris:
 		aff_index = favoris.aff_index
 		id_produit = favoris.produits.id
-		favoris_produit = Produits.objects.get(id__exact=id_produit)
+		favoris_produit = Produits.objects.get(id__exact=id_produit).order_by('generic_name_fr')
 		produit = {}
 		produit['nom'] =  favoris_produit.generic_name_fr
 		produit['image'] = favoris_produit.image_front_url

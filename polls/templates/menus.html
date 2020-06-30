@@ -16,19 +16,19 @@
                         </form></li>
                 <li class="nav-item">
                     {% if user.is_authenticated %}
-                        <a class="nav-link js-scroll-trigger" href="/compte/get_compte/{{user.username}}/"><img class="img-fluid" id="icone_auth" src="{% static 'oc_projetHuit/assets/img/account_icon_50.png' %}" alt="" /></a>
+                        <a class="nav-link js-scroll-trigger" href="/compte/get_compte/{{user.username}}/"><img class="img-fluid" id="icone_auth" src="{% static 'oc_projetHuit/assets/img/account_icon_50.png' %}" alt="Votre compte" /></a>
                     {% else %}
-                        <a class="nav-link js-scroll-trigger" href="/auth_app/signe_it/"><img src="{% static 'oc_projetHuit/assets/img/account_add_50.png' %}" alt="" /></a>
+                        <a class="nav-link js-scroll-trigger" href="/auth_app/signe_it/"><img src="{% static 'oc_projetHuit/assets/img/account_add_50.png' %}" alt="Inscription" /></a>
                     {% endif %}
                 </li>
                 {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="/polls/favoris/"><img src="{% static 'oc_projetHuit/assets/img/Carrot_50.png' %}" alt="" /></a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="/polls/favoris/"><img src="{% static 'oc_projetHuit/assets/img/Carrot_50.png' %}" alt="Favoris" /></a></li>
                 {% endif %}
                 <li class="nav-item">
                 {% if user.is_authenticated %}
-                    <a class="nav-link js-scroll-trigger" href="/auth_app/log_out/"><img class="img-fluid" id="icone_auth" src="{% static 'oc_projetHuit/assets/img/log_out_50.png' %}" alt="" /></a>
+                    <a class="nav-link js-scroll-trigger" href="/auth_app/log_out/"><img class="img-fluid" id="icone_auth" src="{% static 'oc_projetHuit/assets/img/log_out_50.png' %}" alt="Deconnexion" /></a>
                 {% else %}
-                    <a class="nav-link js-scroll-trigger" href="/auth_app/log_in/"><img src="{% static 'oc_projetHuit/assets/img/log_in_50.png' %}" alt="" /></a>
+                    <a class="nav-link js-scroll-trigger" href="/auth_app/log_in/"><img src="{% static 'oc_projetHuit/assets/img/log_in_50.png' %}" alt="Connectez-vous" /></a>
                 {% endif %}
                 </li>
             </ul>
