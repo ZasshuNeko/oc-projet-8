@@ -148,6 +148,7 @@ def search_categorie(answer_utilisateur, user_current, request):
 				x += 1
 	else:
 		liste_reponse = []
+		
 	return liste_reponse
 
 
