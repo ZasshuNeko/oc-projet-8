@@ -67,56 +67,147 @@ def get_resultat(request, search):
 			generic_name_fr__icontains=search_user)
 
 	if not answer_search.exists():
-		liste_reponse = search_categorie(search_user, user_current, request)
-		if len(liste_reponse) == 0:
+		liste_render = search_categorie(search_user, user_current, request)
+		liste_results = liste_render[0]
+		id_select = liste_render[2]
+		if len(liste_results) == 0:
 			search_null = True
+			dico_answer = {"search": search_user}
+			liste_affiche = []
+			results_view = multi_answer(liste_render[1],dico_answer,id_select)
+			dico_other_produit = results_view[0]
+			dico_answer = results_view[1]
 		else:
 			search_null = False
-		dico_answer = {"search": search_user}
+			dico_answer = liste_results[1]
+			liste_affiche = liste_results[0]
+			results_view = multi_answer(liste_render[1],dico_answer,id_select)
+			dico_other_produit = results_view[0]
+			dico_answer = results_view[1]
 	else:
 		for answer in answer_search:
-			id_cat_test = categories.objects.filter(produit__exact=answer.id)
-			if answer.grade:
-				nutri_score = answer.grade
-				image_produit = answer.image_front_url
-				ingredient = answer.ingredients_text_fr
-				url_open = answer.url_site
-				id_produit = answer._id
-				if id_cat_test.exists():
-					id_tbl_produit = answer.id
-					break
+			produit_caracteristique = selection_produit(answer)
+			if len(produit_caracteristique) == 9:
+				break
 
-		if len(nutri_score) != 0:
-			score = nutri_score
-			val_cat_produit = categories.objects.filter(
-				produit__exact=id_tbl_produit)
-			list_filter_cat = []
-			for id_cat in val_cat_produit:
-				list_filter_cat.append(id_cat.id)
-			compare_search = Produits.objects.filter(grade__lt=score).filter(
-				categories__in=list_filter_cat).order_by('generic_name_fr')
-
-		dico_answer = {
-			"score": score,
-			"search": search_user,
-			"image": image_produit,
-			"ingredient": ingredient,
-			'url': url_open}
-
-		if not compare_search.exists():
-			search_null = True
-		else:
-			search_null = False
-			liste_reponse = generer_dic_produit(compare_search, user_current)
+		liste_render = selection_reponse(produit_caracteristique,search_user,user_current)
+		search_null = liste_render[2]
+		dico_answer = liste_render[1]
+		liste_affiche = liste_render[0]
+		results_view = multi_answer(answer_search,dico_answer,produit_caracteristique[8])
+		dico_other_produit = results_view[0]
+		dico_answer = results_view[1]
 
 	dico_answer['error'] = search_null
+
 	return render(request,
 				  'resultat.html',
 				  {'formMenu': SearchMenu(),
 				   'cherche': dico_answer,
-				   'trouve': liste_reponse,
+				   'trouve': liste_affiche,
+				   'multi': dico_other_produit,
 				   "msg_search": ""})
 
+def multi_answer(answer_search,dico_answer,id_select):
+	''' Ce module gère en cas de réponses multiple
+	'''
+	if len(answer_search) > 1:
+		dico_other_produit = other_produit(answer_search,id_select)
+		dico_answer['multi'] = True
+	else:
+		dico_answer['multi'] = False
+		dico_other_produit = []
+
+	return [dico_other_produit,dico_answer]
+
+
+def other_produit(produits,id_select):
+	''' Selection des produits multiples
+	'''
+	liste_produit = []
+	for produit in produits:
+		if produit.id != id_select:
+			nom = produit.generic_name_fr
+			id_produit = produit.id
+			qte_produit = produit.nova_groups
+			dico = {'nom':nom,
+			'id': id_produit,
+			'qte': qte_produit}
+			liste_produit.append(dico)
+	return liste_produit
+
+
+
+def selection_reponse(caract_prod,search_user,user_current):
+	''' Ramène les propriété du produit à comparé, et la liste des produits 
+	trouvé dut à cette comparaison
+	'''
+
+	nutri_score = caract_prod[0]
+	image_produit = caract_prod[1]
+	ingredient = caract_prod[2]
+	url_open = caract_prod[3]
+	id_produit = caract_prod[4]
+	nom_produit = caract_prod[5]
+	image_nutrition = caract_prod[6]
+	qte_produit = caract_prod[7]
+	id_tbl_produit = caract_prod[8]
+
+
+	if len(nutri_score) != 0:
+		score = nutri_score
+		nutrilien = lien_nutriscore(score)
+		val_cat_produit = categories.objects.filter(
+			produit__exact=id_tbl_produit)
+		list_filter_cat = []
+		for id_cat in val_cat_produit:
+			list_filter_cat.append(id_cat.id)
+		compare_search = Produits.objects.filter(grade__lt=score).filter(
+			categories__in=list_filter_cat).order_by('generic_name_fr')
+		if not compare_search.exists():
+			compare_search = Produits.objects.filter(grade__lte=score).filter(
+				categories__in=list_filter_cat).order_by('generic_name_fr')
+
+	dico_answer = {
+		"score": score,
+		"search": search_user,
+		"image": image_produit,
+		"ingredient": ingredient,
+		'url': url_open,
+		'nom': nom_produit,
+		'nutrilien': nutrilien,
+		'img_nutri': image_nutrition,
+		'qte': qte_produit}
+
+
+	if not compare_search.exists():
+		search_null = True
+		liste_reponse = []
+	else:
+		search_null = False
+		liste_reponse = generer_dic_produit(compare_search, user_current)
+
+	return [liste_reponse,dico_answer,search_null]
+
+
+
+def selection_produit(answer):
+	''' Ramène les propriétées d'un produit sélectionner
+	'''
+	id_cat_test = categories.objects.filter(produit__exact=answer.id)
+	if answer.grade:
+		nutri_score = answer.grade
+		image_produit = answer.image_front_url
+		ingredient = answer.ingredients_text_fr
+		url_open = answer.url_site
+		id_produit = answer._id
+		nom_produit = answer.generic_name_fr
+		image_nutrition = answer.image_nutrition_url
+		qte_produit = answer.nova_groups
+		if id_cat_test.exists():
+			id_tbl_produit = answer.id
+
+	return [nutri_score,image_produit,ingredient,url_open,id_produit,nom_produit,image_nutrition,qte_produit,id_tbl_produit]
 
 def search_categorie(answer_utilisateur, user_current, request):
 	''' Si le produit n'est pas trouvé dans la base produit, 
@@ -131,25 +222,22 @@ def search_categorie(answer_utilisateur, user_current, request):
 	liste = []
 
 	if search_categorie.exists():
+		search_produit = Produits.objects.filter().filter(categories__id=search_categorie[0].id)
+		for answer in search_produit:
+			produit_caracteristique = selection_produit(answer)
+			if len(produit_caracteristique) == 9:
+				break
 
-		for categorie in search_categorie:
-			search_produit = Produits.objects.filter().filter(categories__id=categorie.id)
-			if search_produit.exists():
-				if x > 0:
-					liste = [i for i in liste_reponse]
-					liste_reponse = generer_dic_produit(
-						search_produit, user_current)
-					liste_reponse = liste + liste_reponse
-					liste = []
-				else:
-					liste_reponse = generer_dic_produit(
-						search_produit, user_current)
+		id_produit = produit_caracteristique[8]
+		liste_render = selection_reponse(produit_caracteristique,answer_utilisateur, user_current)
+		all_produit = Produits.objects.filter().filter(categories__in=search_categorie)
 
-				x += 1
 	else:
-		liste_reponse = []
-		
-	return liste_reponse
+		liste_render = []
+		all_produit = []
+		id_produit = []
+
+	return [liste_render,all_produit,id_produit]
 
 
 def generer_dic_produit(compare_search, user_current):
@@ -257,7 +345,7 @@ def save_favoris(request):
 		aff_index = favoris.aff_index
 		id_produit = favoris.produits.id
 		favoris_produit = Produits.objects.get(
-			id__exact=id_produit).order_by('generic_name_fr')
+			id__exact=id_produit)
 		produit = {}
 		produit['nom'] = favoris_produit.generic_name_fr
 		produit['image'] = favoris_produit.image_front_url
