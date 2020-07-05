@@ -43,6 +43,11 @@ def maj_bdd(apps, schema_editor):
             if name_fr:
                 #insertion du produit
                 liste_nutriment = item.get("nutriments")
+                ingredient_text = item.get("ingredients_text_fr")
+
+                if not ingredient_text:
+                    ingredient_text = 'Non fournis par Open Food Fact'
+
                 nw_produit = Produits(
                     ingredient=item.get("ingredients_text"),
                     url_image_ingredients=item.get("image_ingredients_url"),
