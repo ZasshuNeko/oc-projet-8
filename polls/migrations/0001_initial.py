@@ -21,7 +21,7 @@ def maj_bdd(apps, schema_editor):
         playload = {
             'action': 'process',
             'sort_by': 'unique_scan_n',
-            'page_size': '200',
+            'page_size': '170',
             'page' : x,
             'json': 'true'
         }
