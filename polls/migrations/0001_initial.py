@@ -42,7 +42,7 @@ def maj_bdd(apps, schema_editor):
             name_fr = item.get("product_name")
             test_produit = Produits.objects.filter(
             generic_name_fr__exact=name_fr)
-            if not answer_search.exists():
+            if not test_produit.exists():
                 if name_fr:
                     #insertion du produit
                     liste_nutriment = item.get("nutriments")
