@@ -58,7 +58,7 @@ def maj_bdd(apps, schema_editor):
                     nova_groups=item.get("quantity"),
                     generic_name_fr=item.get("product_name"),
                     url_site=item.get("url"),
-                    ingredients_text_fr=item.get("ingredients_text_fr"),
+                    ingredients_text_fr=ingredient_text,
                     _id=item.get("_id"))
                 # récupération des catégories
                 categories=item.get("categories")
