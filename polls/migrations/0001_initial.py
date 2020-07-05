@@ -77,9 +77,11 @@ def maj_bdd(apps, schema_editor):
                             nw_categorie.save()
                             id_cat = nw_categorie.id
                             nw_categorie.produit.add(nw_produit)
-                    for stores in item.get("stores_tags"):
-                        Vendeurs.objects.create(
-                            produits=nw_produit, nom=stores)
+                    liste_store = item.get("stores_tags")
+                    if not liste_store is None:
+                        for stores in item.get("stores_tags"):
+                            Vendeurs.objects.create(
+                                produits=nw_produit, nom=stores)
 
                     for cle, valeur in liste_nutriment.items():
                         unit = ""
