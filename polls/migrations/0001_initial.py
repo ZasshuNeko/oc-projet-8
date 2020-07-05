@@ -15,7 +15,7 @@ import unicodedata
 
 def maj_bdd(apps, schema_editor):
     x = 0
-    while x <= 3:
+    while x < 3:
         x += 1
         url = "https://fr.openfoodfacts.org/cgi/search.pl?"
         playload = {
@@ -42,7 +42,6 @@ def maj_bdd(apps, schema_editor):
             name_fr = item.get("product_name")
             test_produit = Produits.objects.filter(
             generic_name_fr__exact=name_fr)
-            print(test_produit,"++++++++",x)
             if not test_produit.exists():
                 if name_fr:
                     #insertion du produit
@@ -68,6 +67,7 @@ def maj_bdd(apps, schema_editor):
                             _id=item.get("_id"))
                         # récupération des catégories
                         categories=item.get("categories")
+                        print(x,"+++++", categories)
                         if categories:
                             if categories.find(':') == -1:
                                 nw_produit.save()
