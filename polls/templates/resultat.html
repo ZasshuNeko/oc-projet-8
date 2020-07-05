@@ -37,18 +37,13 @@
                         <h5 class="text-uppercase text-white font-weight-bold">Votre recherche n'a retournée aucune valeur, soit nous n'avons pas ce produit, soit aucune catégorie n'est liée à cette demande</a></h5>
                         {% endif %}
                         {% if cherche.multi == True %}
-                        <form class="col-auto my-2 align-items-center">
-                        <label class="mr-sm-2  text-white" for="inlineFormCustomSelect">Votre recherche fait remonter plusieurs produits vous pouvez sélectionner un autre si la recherche initiale ne corresponde pas à votre envie</label>
-                        <div class="form-row align-items-center">
-                        <div class="col-auto my-1 align-items-center">
-                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="listeExport">
-                            {% for produit in multi %}
-                            <option value="{{ produit.id }}">{{ produit.nom }} [{{ produit.qte }}]</option>
-                            {% endfor %}
-                        </select>
-                        </div> 
-                        <div class="col-auto my-2 align-items-center">
-                        <button type="submit" class='btn btn-primary' id="callexport">Substitution sur ce produit</button>
+
+                        <form action="/polls/id/resultat/" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                        {% bootstrap_form form_multi layout="inline" form_group_class="form-group mb-2" %}
+                        <div class="input-group-append">
+                        {% bootstrap_button "Substitution sur ce produit" button_type="submit" button_class="btn btn-success mb-2" %}
                         </div>
                         </div>
                         </form>

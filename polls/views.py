@@ -10,7 +10,7 @@ from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
 
 from .models import Produits, Vendeurs, Nutriments, Favoris, categories
-from .forms import Search, SearchMenu
+from .forms import Search, SearchMenu, MultiSelect
 import requests
 import json
 import io
@@ -98,6 +98,17 @@ def get_resultat(request, search):
 		dico_other_produit = results_view[0]
 		dico_answer = results_view[1]
 
+	form_multi = MultiSelect()
+	liste_tuple = []
+	for select in results_view[0]:
+		id_produit = str(select.get('id'))
+		nom_produit = select.get('nom') + '[' + select.get('qte') + ']'
+		tuple_produit = (id_produit, nom_produit)
+		liste_tuple.append(tuple_produit)
+
+	form_multi.fields['select_produit'].choices = liste_tuple
+	form_multi.fields['select_produit'].initial = [1]
+
 	dico_answer['error'] = search_null
 
 	return render(request,
@@ -106,7 +117,55 @@ def get_resultat(request, search):
 				   'cherche': dico_answer,
 				   'trouve': liste_affiche,
 				   'multi': dico_other_produit,
+				   'form_multi':form_multi,
 				   "msg_search": ""})
+
+def get_resultat_id(request):
+
+	if request.method == 'POST':
+		id_produit = request.POST['select_produit']
+
+		user_current = request.user
+		id_prop = Produits.objects.filter(
+				id__exact=id_produit).values()
+		id_search = Produits.objects.filter(
+				id__exact=id_produit)
+		for produit in id_search:
+			produit_caracteristique = selection_produit(produit)
+		search_user = id_prop[0].get('generic_name_fr')
+		liste_render = selection_reponse(produit_caracteristique,search_user,user_current)
+		search_null = liste_render[2]
+		dico_answer = liste_render[1]
+		liste_affiche = liste_render[0]
+		answer_search = Produits.objects.filter(
+				generic_name_fr__icontains=search_user)
+		results_view = multi_answer(answer_search,dico_answer,produit_caracteristique[8])
+		dico_other_produit = results_view[0]
+		dico_answer = results_view[1]
+
+
+	form_multi = MultiSelect()
+	liste_tuple = []
+	for select in results_view[0]:
+		id_produit = str(select.get('id'))
+		nom_produit = select.get('nom') + '[' + select.get('qte') + ']'
+		tuple_produit = (id_produit, nom_produit)
+		liste_tuple.append(tuple_produit)
+
+	form_multi.fields['select_produit'].choices = liste_tuple
+	form_multi.fields['select_produit'].initial = [1]
+
+	dico_answer['error'] = search_null
+
+	return render(request,
+				  'resultat.html',
+				  {'formMenu': SearchMenu(),
+				   'cherche': dico_answer,
+				   'trouve': liste_affiche,
+				   'multi': dico_other_produit,
+				   'form_multi':form_multi,
+				   "msg_search": ""})
+
 
 def multi_answer(answer_search,dico_answer,id_select):
 	''' Ce module gère en cas de réponses multiple
