@@ -15,7 +15,7 @@ import unicodedata
 
 def maj_bdd(apps, schema_editor):
     x = 0
-    while x < 3:
+    while x < 1:
         x += 1
         url = "https://fr.openfoodfacts.org/cgi/search.pl?"
         playload = {
