@@ -18,7 +18,7 @@ def maj_bdd(apps, schema_editor):
     playload = {
         'action': 'process',
         'sort_by': 'unique_scan_n',
-        'page_size': '5000',
+        'page_size': '9999',
         'json': 'true'
     }
     headers = {}
