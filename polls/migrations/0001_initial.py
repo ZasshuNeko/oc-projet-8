@@ -42,7 +42,7 @@ def maj_bdd(apps, schema_editor):
             name_fr = item.get("product_name")
             test_produit = Produits.objects.filter(
             generic_name_fr__exact=name_fr)
-            print()
+            print(test_produit,"++++++++",x)
             if not test_produit.exists():
                 if name_fr:
                     #insertion du produit
@@ -90,7 +90,10 @@ def maj_bdd(apps, schema_editor):
                                         nw_categorie = Categorie.objects.create(nom=categorie, nom_iaccents=no_accent)
                                         nw_categorie.save()
                                         id_cat = nw_categorie.id
-                                        nw_categorie.produit.add(nw_produit)
+                                        try:
+                                            nw_categorie.produit.add(nw_produit)
+                                        except:
+                                            print('Doublon 2')
                                 liste_store = item.get("stores_tags")
                                 if liste_store:
                                     for stores in item.get("stores_tags"):
