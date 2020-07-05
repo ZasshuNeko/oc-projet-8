@@ -14,88 +14,92 @@ import unicodedata
 
 
 def maj_bdd(apps, schema_editor):
-    url = "https://fr.openfoodfacts.org/cgi/search.pl?"
-    playload = {
-        'action': 'process',
-        'sort_by': 'unique_scan_n',
-        'page_size': '500000',
-        'json': 'true'
-    }
-    headers = {}
-    reponse = requests.get(url, params=playload)
-    f = reponse.json()
+    x = 0
+    while x <= 3:
+        x += 1
+        url = "https://fr.openfoodfacts.org/cgi/search.pl?"
+        playload = {
+            'action': 'process',
+            'sort_by': 'unique_scan_n',
+            'page_size': '1000',
+            'page' : x,
+            'json': 'true'
+        }
+        headers = {}
+        reponse = requests.get(url, params=playload)
+        f = reponse.json()
 
 
-    Produits = apps.get_model('polls', 'Produits')
-    Vendeurs = apps.get_model('polls', 'Vendeurs')
-    Nutriments = apps.get_model('polls', 'Nutriments')
-    Categorie = apps.get_model('polls', 'Categories')
+        Produits = apps.get_model('polls', 'Produits')
+        Vendeurs = apps.get_model('polls', 'Vendeurs')
+        Nutriments = apps.get_model('polls', 'Nutriments')
+        Categorie = apps.get_model('polls', 'Categories')
 
-    with open('test.json','w') as fp:
-        json.dump(f,fp,indent=4,separators=(',',':'))
-    for item in f['products']:
-        # Vérification si nom francais est vide
-        name_fr = item.get("product_name")
-        if name_fr:
-            #insertion du produit
-            liste_nutriment = item.get("nutriments")
-            nw_produit = Produits(
-                ingredient=item.get("ingredients_text"),
-                url_image_ingredients=item.get("image_ingredients_url"),
-                brands_tags=item.get("brands_tags"),
-                grade=liste_nutriment.get("nutrition-score-fr_100g"),
-                image_front_url=item.get("image_front_url"),
-                image_nutrition_url=item.get("image_nutrition_url"),
-                nova_groups=item.get("quantity"),
-                generic_name_fr=item.get("product_name"),
-                url_site=item.get("url"),
-                ingredients_text_fr=item.get("ingredients_text_fr"),
-                _id=item.get("_id"))
-            # récupération des catégories
-            categories=item.get("categories")
-            if categories:
-                #if categories.find(':') == -1:
-                nw_produit.save()
-                liste_categories = categories.split(',')
-                # On vérifie si les catégories existe
-                for categorie in liste_categories:
-                    categorie = categorie.strip()
-                    try:
-                        object_cat = Categorie.objects.get(
-                            nom__exact=categorie)
-                        object_cat.save()
-                        id_cat = object_cat.id
-                        object_cat.produit.add(nw_produit)
-                    except Categorie.DoesNotExist:
-                        no_accent = "".join((c for c in unicodedata.normalize(
-                        'NFD', categorie) if unicodedata.category(c) != 'Mn'))
-                        nw_categorie = Categorie.objects.create(nom=categorie, nom_iaccents=no_accent)
-                        nw_categorie.save()
-                        id_cat = nw_categorie.id
-                        nw_categorie.produit.add(nw_produit)
-                for stores in item.get("stores_tags"):
-                    Vendeurs.objects.create(
-                        produits=nw_produit, nom=stores)
+        with open('test.json','w') as fp:
+            json.dump(f,fp,indent=4,separators=(',',':'))
+        for item in f['products']:
+            # Vérification si nom francais est vide
+            name_fr = item.get("product_name")
+            if name_fr:
+                #insertion du produit
+                liste_nutriment = item.get("nutriments")
+                nw_produit = Produits(
+                    ingredient=item.get("ingredients_text"),
+                    url_image_ingredients=item.get("image_ingredients_url"),
+                    brands_tags=item.get("brands_tags"),
+                    grade=liste_nutriment.get("nutrition-score-fr_100g"),
+                    image_front_url=item.get("image_front_url"),
+                    image_nutrition_url=item.get("image_nutrition_url"),
+                    nova_groups=item.get("quantity"),
+                    generic_name_fr=item.get("product_name"),
+                    url_site=item.get("url"),
+                    ingredients_text_fr=item.get("ingredients_text_fr"),
+                    _id=item.get("_id"))
+                # récupération des catégories
+                categories=item.get("categories")
+                if categories:
+                    #if categories.find(':') == -1:
+                    nw_produit.save()
+                    liste_categories = categories.split(',')
+                    # On vérifie si les catégories existe
+                    for categorie in liste_categories:
+                        categorie = categorie.strip()
+                        try:
+                            object_cat = Categorie.objects.get(
+                                nom__exact=categorie)
+                            object_cat.save()
+                            id_cat = object_cat.id
+                            object_cat.produit.add(nw_produit)
+                        except Categorie.DoesNotExist:
+                            no_accent = "".join((c for c in unicodedata.normalize(
+                            'NFD', categorie) if unicodedata.category(c) != 'Mn'))
+                            nw_categorie = Categorie.objects.create(nom=categorie, nom_iaccents=no_accent)
+                            nw_categorie.save()
+                            id_cat = nw_categorie.id
+                            nw_categorie.produit.add(nw_produit)
+                    for stores in item.get("stores_tags"):
+                        Vendeurs.objects.create(
+                            produits=nw_produit, nom=stores)
 
-                for cle, valeur in liste_nutriment.items():
-                    unit = ""
-                    val_100 = 0
-                    label = ""
-                    if cle.find("_label") == -1:
-                        if cle.find("_unit") != -1:
-                            unit = liste_nutriment.get(cle)
-                            label = cle.split('_')
-                            label = label[0]
-                        elif cle.find("_100g") != -1:
-                            val_100 = liste_nutriment.get(cle)
-                            label = cle.split('_')
-                            label = label[0]
+                    for cle, valeur in liste_nutriment.items():
+                        unit = ""
+                        val_100 = 0
+                        label = ""
+                        if cle.find("_label") == -1:
+                            if cle.find("_unit") != -1:
+                                unit = liste_nutriment.get(cle)
+                                label = cle.split('_')
+                                label = label[0]
+                            elif cle.find("_100g") != -1:
+                                val_100 = liste_nutriment.get(cle)
+                                label = cle.split('_')
+                                label = label[0]
 
-                        if len(unit) != 0 or len(str(val_100)) != 0:
-                            Nutriments.objects.create(
-                                produits=nw_produit, nom=label, unite=unit, valeur=val_100)
-                            unit = ""
-                            val_100 = 0
+                            if len(unit) != 0 or len(str(val_100)) != 0:
+                                Nutriments.objects.create(
+                                    produits=nw_produit, nom=label, unite=unit, valeur=val_100)
+                                unit = ""
+                                val_100 = 0
 
 
 class Migration(migrations.Migration):
