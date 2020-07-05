@@ -78,7 +78,7 @@ def maj_bdd(apps, schema_editor):
                             id_cat = nw_categorie.id
                             nw_categorie.produit.add(nw_produit)
                     liste_store = item.get("stores_tags")
-                    if iste_store:
+                    if liste_store:
                         for stores in item.get("stores_tags"):
                             Vendeurs.objects.create(
                                 produits=nw_produit, nom=stores)
