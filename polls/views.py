@@ -343,6 +343,7 @@ def generer_liste_reponse(produit, liste_reponse, user_current, compare):
 		liste_reponse.append(produit)
 		error = "oui"
 	nw_liste_reponse = sorted(liste_reponse, key=lambda k : k['grade']) 
+	print(nw_liste_reponse)
 	return nw_liste_reponse #liste_reponse
 
 
