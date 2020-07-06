@@ -222,10 +222,10 @@ def selection_reponse(caract_prod,search_user,user_current):
 		for id_cat in val_cat_produit:
 			list_filter_cat.append(id_cat.id)
 		compare_search = Produits.objects.filter(grade__lt=score).filter(
-			categories__in=list_filter_cat).order_by('generic_name_fr')
+			categories__in=list_filter_cat).order_by('grade')
 		if not compare_search.exists():
 			compare_search = Produits.objects.filter(grade__lte=score).filter(
-				categories__in=list_filter_cat).order_by('generic_name_fr')
+				categories__in=list_filter_cat).order_by('grade')
 
 	dico_answer = {
 		"score": score,
