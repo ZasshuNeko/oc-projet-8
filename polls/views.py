@@ -311,6 +311,7 @@ def generer_dic_produit(compare_search, user_current):
 			produit['image'] = compare.image_front_url
 			produit['url'] = compare.url_site
 			produit['id'] = compare.id
+			produit['grade'] = compare.grade
 
 			compare_score = compare.grade
 			if compare_score is None:
@@ -341,7 +342,8 @@ def generer_liste_reponse(produit, liste_reponse, user_current, compare):
 		produit['favoris'] = save
 		liste_reponse.append(produit)
 		error = "oui"
-	return liste_reponse
+	nw_liste_reponse = sorted(liste_reponse, key=lambda k : k['grade']) 
+	return nw_liste_reponse #liste_reponse
 
 
 def redirect_resultat(request):
