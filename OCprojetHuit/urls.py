@@ -18,9 +18,9 @@ from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView
 
 urlpatterns = [
-    re_path(r'^.*$', RedirectView.as_view(url='polls/', permanent=False), name='index')
 	path('polls/', include('polls.urls')),
 	path('auth_app/', include('auth_app.urls')),
 	path('compte/', include('compte.urls')),
     path('admin/', admin.site.urls),
+    path('', RedirectView.as_view(url='polls/', permanent=False), name='index'),
 ]
