@@ -121,6 +121,9 @@ def get_resultat(request, search):
 				   "msg_search": ""})
 
 def get_resultat_id(request):
+	''' Appelé quand l'utilisateur utilise la liste déroulante des produits
+	répondant à sa recherche initiale
+	'''
 
 	if request.method == 'POST':
 		id_produit = request.POST['select_produit']

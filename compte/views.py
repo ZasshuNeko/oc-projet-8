@@ -20,11 +20,13 @@ import os
 def get_compte(request, user_name):
 	''' Affiche le compte de l'utilisateur
 	Displays user account '''
-	login = request.user.username
-	first_name = request.user.first_name
-	last_name = request.user.last_name
-	email = request.user.email
-	password = request.user.password
+	user_current = request.user
+
+	login = user_current.username
+	first_name = user_current.first_name
+	last_name = user_current.last_name
+	email = user_current.email
+	password = user_current.password
 
 	name = affiche_nom(first_name,last_name,login)
 	data_compte = {'email': email, 'name': name}
@@ -76,7 +78,9 @@ def edit_valide(request, username):
 		'name': name,
 		'formMenu': SearchMenu()}
 
-	return render(request, 'compte.html', data_compte)
+	url_redirect = '/compte/get_compte/' + user_current.username + '/'
+	#return render(request, 'compte.html', data_compte)
+	return HttpResponseRedirect(url_redirect, data_compte)
 
 def affiche_nom(first_name,last_name,login):
 
