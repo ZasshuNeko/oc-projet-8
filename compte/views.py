@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.timezone import datetime
 from django.contrib.auth.decorators import login_required
 
-from .forms import Edit, SearchMenu
+from .forms import Edit, SearchMenu, InfoView
 import requests
 import json
 import io
