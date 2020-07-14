@@ -12,6 +12,7 @@ urlpatterns = [
 	re_path(r'^maj/index/([0-9]+)/',views.mise_index, name="maj_index"),
 	re_path(r'^aliments/([0-9]+)/',views.get_aliment, name='get_aliment'),
 	re_path(r'^save/([0-9]+)/',views.save, name='save'),
+	path('mlegale/', views.mlegale,name="mention"),
 
 ]
 

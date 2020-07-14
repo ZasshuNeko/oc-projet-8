@@ -194,6 +194,13 @@ def save(request, id_produit):
 			'formMenu': SearchMenu(), 'msg_save': info})
 
 
+def mlegale(request):
+
+	formMenu = SearchMenu()
+
+	return render(request,
+			  'mention_legale.html',{'formMenu':formMenu})
+
 def lien_nutriscore(nutri_point):
 	''' Ramène le lien vers l'image de nutriscore
 	Brings back the link to the nutriscore image '''
