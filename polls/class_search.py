@@ -302,9 +302,9 @@ def lien_nutriscore(nutri_point):
     Brings back the link to the nutriscore image '''
     compare_score = nutri_point
 
-    if int(compare_score) >= -15 and int(compare_score) <= -2:
+    if int(compare_score) >= -15 and int(compare_score) <= 0:
         lien = "oc_projetHuit/assets/img/nutriscore-A.png"
-    elif int(compare_score) >= -1 and int(compare_score) <= 3:
+    elif int(compare_score) > 0 and int(compare_score) <= 3:
         lien = "oc_projetHuit/assets/img/nutriscore-B.png"
     elif int(compare_score) >= 4 and int(compare_score) <= 11:
         lien = "oc_projetHuit/assets/img/nutriscore-C.png"
