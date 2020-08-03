@@ -113,10 +113,39 @@ class TestApp(TestCase):
             else:
                 self.assertNotEqual(len(response.context['trouve']), 0)
 
+    def test_noreponse(self):
+        '''permet de test lorsqu'une recherche n'est pas trouvée
+        '''
+        terme_search = "trucmachin"
+        response = self.client.post(
+            '/polls/resultat/' + terme_search + '/', {'search': terme_search})
+
+        self.assertEqual(response.status_code, 200)
+        if response.context['cherche']['error']:
+            self.assertEqual(response.status_code, 200)
+
+    def test_noreponse_goodcat(self):
+        '''permet de test lorsqu'une recherche n'est pas trouvée
+        '''
+        terme_search = "gateau"
+        response = self.client.post(
+            '/polls/resultat/' + terme_search + '/', {'search': terme_search})
+
+        if terme_search == "":
+            self.assertEqual(response.status_code, 302)
+            self.assertRedirects(response, '/polls/')
+        else:
+            self.assertEqual(response.status_code, 200)
+            if response.context['cherche']['error']:
+                self.assertEqual(response.status_code, 200)
+            else:
+                self.assertNotEqual(len(response.context['trouve']), 0)
+
+        
+
     def test_index(self):
         ''' test l'index et de l'affichage des favoris
         test index and display favorites '''
-        # login =
         self.client.login(username="testuser1", password='testtest')
         response = self.client.get(reverse('login'))
         self.assertEqual(str(response.context['user']), 'testuser1')

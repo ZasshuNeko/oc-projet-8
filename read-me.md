@@ -13,7 +13,7 @@ II. Installation de python 3
 **Windows 10**
 > Rendez-vous sur (https://python.org/downloads/)
 > Téléchargez la dernière version de python 3.X.X
-> Installez la sur votre système
+> Installez-la sur votre système
 
 III. Installation de Git et copie du programme
 ==============================================
@@ -34,15 +34,15 @@ Editer le fichier « settings » que vous trouverez dans le dossier « OCproj
 Les variables à éditer sont :
 SECRET_KEY : Votre clé de production
 ALLOWED_HOST : Les hosts autorisés à se connecter à votre application
-DATABASES : La base de donnée dont va faire appel l’application
+DATABASES : La base de données dont va faire appel l’application
 
-Pour tester l’application en local, autorisé l’ip 127.0.0.1, créer une base de donnée avec postgresql et renseigner les dans DATABASES.
+Pour tester l’application en local, autoriser l’ip 127.0.0.1, créer une base de données avec postgresql et renseigner les dans DATABASES.
 
-Une fois les données renseigné lancer l’application en invite de commande en vous metteant à la racine du projet et entrer les commandes suivantes :
+Une fois les données renseignées, lancez l’application en invite de commande en vous mettant à la racine du projet et entrez les commandes suivantes :
 
 > `Python manage.py migrate`
 
-(Cette commande va faire tourner le script 001_initial présent dans polls/migrations. Cette première migration va faire un import de 140 produits, ce nombre limité de produit est dût à la limite gratuite de héroku de 10 000 lignes, vous pouvez à tous moment modifier le fichier de migration pour faire en sorte d’intégrer plus de produits)
+(Cette commande va faire tourner le script 001_initial présent dans polls/migrations. Cette première migration va faire un import de 140 produits, ce nombre limité de produits est dû à la limite gratuite de heroku de 10 000 lignes, vous pouvez à tous moment modifier le fichier de migration pour faire en sorte d’intégrer plus de produits)
 
 > `python manage.py runserver`
 
@@ -53,7 +53,7 @@ V. L’application
 
 L’application est composée de différentes fonctionnalités :
 
-Recherche : Deux barres de recherche sont à votre disposition, l’une sur l’index et l’autre intégré au menu de l’application
+Recherche : Deux barres de recherche sont à votre disposition, l’une sur l’index et l’autre intégrée au menu de l’application
 
 Compte : A tout moment les utilisateurs peuvent ouvrir un compte sur votre site. Ils auront alors accès à la fonctionnalité des favoris et de l’affichage sur l’index. Le compte peut être édité à tout moment par l’utilisateur.
 
@@ -71,7 +71,7 @@ Auth_app : gérant la partie authentification
 VI. Les tests
 =============
 
-Les tests pour l’application sont répartie dans les trois grandes partie (polls, compte, auth_app), chacune possède un fichier « tests.py » regroupant tous les tests de cette partie.
+Les tests pour l’application sont répartis dans les trois grandes parties (polls, compte, auth_app), chacune possède un fichier « tests.py » regroupant tous les tests de cette partie.
 Les tests utilisent Sélénium pour la pratique émulation d’une navigation.
 
 La couverture de ces tests est de 87% et ils peuvent être exécutés avec ces lignes :
