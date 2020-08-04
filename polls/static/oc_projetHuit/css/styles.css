@@ -10050,7 +10050,7 @@ hr.light {
 header.masthead {
   padding-top: 10rem;
   padding-bottom: calc(10rem - 4.5rem);
-  background: linear-gradient(to bottom, rgba(92, 77, 66, 0.8) 0%, rgba(92, 77, 66, 0.8) 100%), url("../assets/img/bg_app.jpg");
+  background: linear-gradient(to bottom, rgba(52.5, 92.2, 90.2, 0.8) 0%, rgba(52.5, 92.2, 90.2, 0.8) 100%), url("../assets/img/bg_app.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -10083,7 +10083,7 @@ header.masthead h1 {
 header.mastheadR {
   padding-top: 10rem;
   padding-bottom: calc(10rem - 4.5rem);
-  background: linear-gradient(to bottom, rgba(92, 77, 66, 0.8) 0%, rgba(92, 77, 66, 0.8) 100%), url("../assets/img/bg_app.jpg");
+  background: linear-gradient(to bottom, rgba(52.5, 92.2, 90.2, 0.8) 0%, rgba(52.5, 92.2, 90.2, 0.8) 100%), url("../assets/img/bg_app.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: scroll;
