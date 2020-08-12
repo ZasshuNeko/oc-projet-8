@@ -20,17 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'YOUR_KEY'
+SECRET_KEY = 'x693c28g7ptqmwg)enro2wuxe*6-_wovm)d&i90k9-gx#&_4=l'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['app-pure-beurre.herokuapp.com', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
     'bootstrap4',
     'auth_app.apps.AuthAppConfig',
     'compte.apps.CompteConfig',
-    'polls.apps.PollsConfig',
+    'app.apps.AppConfig',
     'django.contrib.postgres',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'OCprojetHuit.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'NAME_DB',
-        'USER': 'USER_DB',
-        'PASSWORD': 'PASSWORD_DB',
+        'NAME': 'ocprojethuit',
+        'USER': 'postgres',
+        'PASSWORD': 'ocsqlpassRooT*',
         'HOST': 'localhost',
         'PORT': '',
     }

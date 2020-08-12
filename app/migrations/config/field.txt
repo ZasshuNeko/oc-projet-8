@@ -1,0 +1,1 @@
+ingredients_text,origins,image_ingredients_url,brands_tags,grade,image_front_url,image_nutrition_url,nova_groups,stores_tags,product_name,url,ingredients_text_fr,nutriments,_id,categories
